@@ -21,6 +21,7 @@ import { buildCustomDay } from '../plan/builder.js';
 import { navigate } from '../router.js';
 import { fmtDuration } from '../ui/format.js';
 import { button, el, icon, mount } from '../ui/dom.js';
+import { openTutorial } from '../ui/tutorial.js';
 
 /** @type {string[]} ordered list of exercise IDs in the current cart */
 let cart = [];
@@ -97,6 +98,10 @@ function itemRow(ex) {
       noEquip ? el('span.tag.tag-muted', {}, ['Thiếu thiết bị']) : null,
     ]),
     el('div.browse-action', {}, [
+      el('button.icon-btn.tutorial-icon', {
+        type: 'button', title: 'Hướng dẫn',
+        onClick: (e) => { e.stopPropagation(); openTutorial(ex); },
+      }, ['📖']),
       el(`span.cart-check${inCart ? '.is-on' : ''}`, {}, [inCart ? '✓' : '+']),
     ]),
   ]);

@@ -18,6 +18,7 @@ import { fmtTime } from '../ui/format.js';
 import { button, el, icon, mount } from '../ui/dom.js';
 import { EXERCISES, getExercise } from '../data/exercises.js';
 import { makeAnimation } from '../data/animations.js';
+import { openTutorial } from '../ui/tutorial.js';
 import * as Speech from '../audio/speech.js';
 import * as Sound from '../audio/sound.js';
 
@@ -98,6 +99,7 @@ function sessionBody(block, ex) {
 function activeView(block, ex) {
   const setCount = block.sets;
   const setLabel = `Set ${session.setIdx + 1}/${setCount}`;
+  const isIntro = session.phase === 'intro';
   return el('div.session-main', {}, [
     el('div.anim-stage', {}, [makeAnimation(ex.id)]),
     el('h1.exercise-title', {}, [ex.name]),
@@ -105,6 +107,7 @@ function activeView(block, ex) {
     bigDisplay(block, ex),
     el('p.exercise-instructions', {}, [ex.instructions]),
     el('div.cue-row', {}, ex.cues.map((c) => el('span.cue-pill', {}, [c]))),
+    isIntro ? el('button.btn.ghost.tutorial-btn', { type: 'button', onClick: () => openTutorial(ex) }, ['📖 Hướng dẫn chi tiết']) : null,
   ]);
 }
 

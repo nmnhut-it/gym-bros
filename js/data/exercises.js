@@ -19,8 +19,24 @@
  */
 
 import { CONDITION as C, EQUIPMENT as E, EXERCISE_TYPE as T } from '../constants.js';
+import { EXERCISE_CONTENT } from './exercises-content.js';
 
-const EX = (def) => Object.freeze({ defaultSets: 3, defaultRest: 45, equipment: [], unsafeFor: [], safetyTags: [], cues: [], ...def });
+/**
+ * EX() merges:
+ *   1. sane defaults (sets, rest, equipment, ...)
+ *   2. the per-exercise definition you pass in
+ *   3. enriched tutorial content from exercises-content.js (if present for this id)
+ *
+ * Result is frozen so views can never mutate it accidentally.
+ */
+const EX = (def) => {
+  const enrichment = EXERCISE_CONTENT[def.id] ?? {};
+  return Object.freeze({
+    defaultSets: 3, defaultRest: 45, equipment: [], unsafeFor: [], safetyTags: [], cues: [],
+    ...def,
+    ...enrichment,
+  });
+};
 
 export const EXERCISES = Object.freeze({
   // ==================== WARM-UP / CARDIO ====================

@@ -263,6 +263,50 @@
     align-items: center;
   }
 
+  /* tutorial sheet */
+  .tutorial-sheet { gap: var(--sp-5); }
+  .tutorial-anim {
+    width: 100%;
+    height: 180px;
+    background: linear-gradient(180deg, rgba(251,146,60,0.08), transparent);
+    border-radius: var(--r-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tutorial-anim .anim { width: 160px; height: 160px; }
+  .tut-section { display: flex; flex-direction: column; gap: var(--sp-2); }
+  .tut-section-title {
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--brand);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .muscle-pills { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+  .muscle-pill {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 2px 12px;
+    font-size: var(--fs-sm);
+    color: var(--fg-1);
+  }
+  .tut-steps { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .tut-step { display: grid; grid-template-columns: 28px 1fr; gap: var(--sp-3); align-items: flex-start; }
+  .tut-step-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--brand); color: #1a0e00;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: var(--fs-xs); font-weight: 700;
+    flex-shrink: 0;
+  }
+  .tut-step-text { color: var(--fg-1); line-height: 1.55; }
+  .tut-mistakes { display: flex; flex-direction: column; gap: var(--sp-1); }
+  .tut-mistakes li { color: var(--fg-1); padding-left: var(--sp-1); }
+  .tut-sources { display: flex; flex-direction: column; gap: var(--sp-1); font-size: var(--fs-sm); }
+  .tut-sources a { color: var(--brand); text-decoration: underline; }
+
   /* swap list */
   .swap-list {
     display: flex;
@@ -881,6 +925,21 @@
     display: flex;
     flex-direction: column;
     gap: var(--sp-2);
+  }
+
+  .browse-action {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+    align-items: center;
+  }
+  .tutorial-icon {
+    font-size: 18px;
+    width: 32px; height: 32px;
+  }
+  .tutorial-btn {
+    margin-top: var(--sp-3);
+    color: var(--brand);
   }
 
   .browse-item {
