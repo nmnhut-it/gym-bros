@@ -267,14 +267,18 @@
   .tutorial-sheet { gap: var(--sp-5); }
   .tutorial-anim {
     width: 100%;
-    height: 180px;
+    height: 220px;
+    min-height: 220px;       /* flex parents can shrink children with absolute kids; lock height */
+    flex-shrink: 0;
     background: linear-gradient(180deg, rgba(251,146,60,0.08), transparent);
     border-radius: var(--r-md);
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
   }
-  .tutorial-anim .anim { width: 160px; height: 160px; }
+  .tutorial-anim .anim { width: 100%; height: 100%; }
+  .tutorial-anim .anim:not(.anim-photo) { width: 200px; height: 200px; }
   .tut-section { display: flex; flex-direction: column; gap: var(--sp-2); }
   .tut-section-title {
     font-size: var(--fs-sm);
@@ -748,6 +752,28 @@
 
   /* All poses default to invisible — keyframes turn them on per kind. */
   .anim .p { opacity: 0; }
+
+  /* ----- Real-people photo animation (free-exercise-db) ----- */
+  .anim-photo {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    background: var(--bg-2);
+  }
+  .anim-photo .photo-frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+  }
+  @keyframes photo-fade-a { 0%, 45% { opacity: 1; } 55%, 100% { opacity: 0; } }
+  @keyframes photo-fade-b { 0%, 45% { opacity: 0; } 55%, 100% { opacity: 1; } }
+  .anim-photo .frame-0 { animation: photo-fade-a 2.4s ease-in-out infinite; }
+  .anim-photo .frame-1 { animation: photo-fade-b 2.4s ease-in-out infinite; }
 
   /* ----- 2-pose loop ----- */
   @keyframes pose-2-a {

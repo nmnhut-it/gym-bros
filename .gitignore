@@ -12,3 +12,6 @@ dist/
 .playwright-mcp/
 *.png
 !docs/**/*.png
+
+# tutorial photos are tracked (assets/photos/) but be careful when adding new image types
+

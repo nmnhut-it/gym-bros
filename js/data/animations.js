@@ -1,3 +1,5 @@
+import { hasPhotos, getPhotoUrls } from './photos.js';
+
 /**
  * Stick-figure animations v2 — multi-pose fade for clearer motion.
  *
@@ -260,11 +262,37 @@ export const EXERCISE_TO_ANIM = Object.freeze({
 });
 
 /**
- * Build an animated SVG node for a given exercise.
+ * Build an animation node for a given exercise.
+ *
+ * Priority:
+ *   1. If photos exist (real-people from free-exercise-db) → 2-image crossfade
+ *   2. Otherwise fall back to the SVG stick figure with multi-pose fade
+ *
  * @param {string} exerciseId
  * @returns {HTMLElement}
  */
 export function makeAnimation(exerciseId) {
+  if (hasPhotos(exerciseId)) return makePhotoAnimation(exerciseId);
+  return makeSvgAnimation(exerciseId);
+}
+
+function makePhotoAnimation(exerciseId) {
+  const urls = getPhotoUrls(exerciseId);
+  const wrap = document.createElement('div');
+  wrap.className = 'anim anim-photo';
+  for (let i = 0; i < urls.length; i++) {
+    const img = document.createElement('img');
+    img.className = `photo-frame frame-${i}`;
+    img.src = urls[i];
+    img.alt = '';
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    wrap.appendChild(img);
+  }
+  return wrap;
+}
+
+function makeSvgAnimation(exerciseId) {
   const kind = EXERCISE_TO_ANIM[exerciseId] ?? 'plank';
   const body = SVG_BODY[kind] ?? SVG_BODY.plank;
   const src = `<svg xmlns="http://www.w3.org/2000/svg" class="anim anim-${kind}" viewBox="-110 0 220 200" stroke="currentColor" stroke-width="${STROKE_W}" fill="none" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;

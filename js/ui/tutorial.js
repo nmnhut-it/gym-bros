@@ -9,6 +9,7 @@
  */
 
 import { makeAnimation } from '../data/animations.js';
+import { hasPhotos, getPhotoNote, PHOTO_SOURCE } from '../data/photos.js';
 import { el } from './dom.js';
 
 /**
@@ -24,6 +25,7 @@ export function openTutorial(ex) {
       el('button.icon-btn', { type: 'button', onClick: () => sheet.remove() }, ['✕']),
     ]),
     el('div.tutorial-anim', {}, [makeAnimation(ex.id)]),
+    photoNote(ex),
     ex.benefits ? section('Vì sao bài này tốt', el('p', {}, [ex.benefits])) : null,
     musclesWorkedSection(ex),
     detailedStepsSection(ex),
@@ -74,10 +76,19 @@ function safetyNotesSection(ex) {
 }
 
 function sourcesSection(ex) {
-  if (!ex.sources?.length) return null;
+  const docSources = ex.sources ?? [];
+  const photoSrc = hasPhotos(ex.id) ? [PHOTO_SOURCE] : [];
+  const all = [...docSources, ...photoSrc];
+  if (all.length === 0) return null;
   return section('Nguồn tham khảo',
-    el('ul.tut-sources', {}, ex.sources.map((s) => el('li', {}, [
+    el('ul.tut-sources', {}, all.map((s) => el('li', {}, [
       el('a', { href: s.url, target: '_blank', rel: 'noopener' }, [s.name]),
     ]))),
   );
+}
+
+function photoNote(ex) {
+  const note = getPhotoNote(ex.id);
+  if (!note) return null;
+  return el('p.muted.photo-note', {}, [`📷 Lưu ý: ảnh minh hoạ là ${note}.`]);
 }
