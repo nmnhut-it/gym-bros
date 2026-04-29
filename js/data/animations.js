@@ -1,156 +1,232 @@
 /**
- * Stick-figure animations for exercises.
+ * Stick-figure animations v2 — multi-pose fade for clearer motion.
  *
- * Approach: each kind is an inline SVG with CSS classes. main.css drives the
- * animation via @keyframes targeting `.anim-<kind>` and inner `<g>` parts.
+ * Each animation packs 2 or 3 full-body poses into one SVG. CSS cycles
+ * opacity through them so the user sees distinct positions instead of
+ * an interpolated blob — much easier to follow along.
  *
- * Why SVG (not GIF, not video, not YouTube):
- *  - <2KB per animation vs 500KB-2MB GIFs
- *  - Works fully offline
- *  - Owned content — no platform/ad surprises
- *  - Easy to retheme via stroke color
+ * Why multi-pose-fade over joint-rigging:
+ *   - Each pose is hand-drawn → hits the exact target body position
+ *   - No nested SVG transform math
+ *   - Browser-friendly (just opacity transitions)
+ *   - 1-3KB per animation
  *
- * Tradeoff: cartoon-y, won't replace real demo videos for finer technique cues.
+ * Tradeoff: motion looks a bit teleporty rather than smooth. For a
+ * how-to-follow tool that's actually a feature — discrete poses are
+ * clearer than a blur of motion.
  *
- * Map exercises to a kind via EXERCISE_TO_ANIM. Generic-looking exercises
- * (e.g. all stretches) share a kind.
+ * Scale: viewBox -60 0 120 200, side view, head at top.
+ *   y=14  head center (r=10)
+ *   y=24  shoulder
+ *   y=95  hip
+ *   y=175 ankle
  */
 
-const STROKE = 'currentColor';
+const STROKE_W = 5;
 
-/** SVG body markup per animation kind. Wrapped by makeAnimation(). */
+/** Inline shorthand: head circle. */
+const head = (cx, cy) => `<circle cx="${cx}" cy="${cy}" r="10" fill="currentColor" stroke="none"/>`;
+
+/** Compose a pose group with arbitrary SVG body content. */
+const pose = (cls, body) => `<g class="${cls}">${body}</g>`;
+
 const SVG_BODY = {
-  walk: `
-    <g class="figure">
-      <circle cx="0" cy="22" r="14" fill="${STROKE}" stroke="none"/>
-      <path d="M0 36 L0 110"/>
-      <g class="arm-front"><path d="M0 56 L26 92"/></g>
-      <g class="arm-back"><path d="M0 56 L-26 92"/></g>
-      <g class="leg-front"><path d="M0 110 L22 178"/></g>
-      <g class="leg-back"><path d="M0 110 L-22 178"/></g>
-    </g>`,
+  // ===== walk: alternating leg + arm swing =====
+  walk: pose('p p1', `
+    ${head(0, 14)}
+    <path d="M0 24 L0 95"/>
+    <path d="M0 38 L-22 70"/>
+    <path d="M0 38 L22 78"/>
+    <path d="M0 95 L-22 175"/>
+    <path d="M0 95 L22 178"/>
+    <path d="M-25 178 L-15 178"/>
+    <path d="M19 181 L29 181"/>
+  `) + pose('p p2', `
+    ${head(0, 14)}
+    <path d="M0 24 L0 95"/>
+    <path d="M0 38 L22 70"/>
+    <path d="M0 38 L-22 78"/>
+    <path d="M0 95 L22 175"/>
+    <path d="M0 95 L-22 178"/>
+    <path d="M19 178 L29 178"/>
+    <path d="M-25 181 L-15 181"/>
+  `),
 
-  squat: `
-    <g class="figure">
-      <circle class="sq-head" cx="0" cy="22" r="14" fill="${STROKE}" stroke="none"/>
-      <g class="sq-body">
-        <path d="M0 36 L0 110"/>
-        <path d="M0 56 L-32 100"/>
-        <path d="M0 56 L32 100"/>
-      </g>
-      <g class="sq-leg-l"><path d="M0 110 L-22 175"/></g>
-      <g class="sq-leg-r"><path d="M0 110 L22 175"/></g>
-    </g>`,
+  // ===== squat: standing → squatting (hip back, knees bent, body slight lean) =====
+  squat: pose('p p1', `
+    ${head(0, 14)}
+    <path d="M0 24 L0 95"/>
+    <path d="M0 38 L-12 78"/>
+    <path d="M0 38 L12 78"/>
+    <path d="M0 95 L-12 175"/>
+    <path d="M0 95 L12 175"/>
+    <path d="M-18 178 L-6 178"/>
+    <path d="M6 178 L18 178"/>
+  `) + pose('p p2', `
+    ${head(8, 38)}
+    <path d="M8 48 Q8 70 -2 100"/>
+    <path d="M10 60 L34 75"/>
+    <path d="M10 60 L34 60"/>
+    <path d="M-2 100 L-32 130 L-22 175"/>
+    <path d="M-2 100 L26 130 L20 175"/>
+    <path d="M14 178 L26 178"/>
+    <path d="M-28 178 L-16 178"/>
+  `),
 
-  lunge: `
-    <g class="figure">
-      <circle class="ln-head" cx="0" cy="22" r="14" fill="${STROKE}" stroke="none"/>
-      <g class="ln-body">
-        <path d="M0 36 L0 105"/>
-        <path d="M0 55 L-28 90"/>
-        <path d="M0 55 L28 90"/>
-      </g>
-      <g class="ln-leg-front"><path d="M0 105 L30 175"/></g>
-      <g class="ln-leg-back"><path d="M0 105 L-30 175"/></g>
-    </g>`,
+  // ===== lunge: standing → rear leg back, front knee bent =====
+  lunge: pose('p p1', `
+    ${head(0, 14)}
+    <path d="M0 24 L0 95"/>
+    <path d="M0 38 L-12 78"/>
+    <path d="M0 38 L12 78"/>
+    <path d="M0 95 L-12 175"/>
+    <path d="M0 95 L12 175"/>
+  `) + pose('p p2', `
+    ${head(0, 24)}
+    <path d="M0 34 L0 105"/>
+    <path d="M0 48 L-10 88"/>
+    <path d="M0 48 L10 88"/>
+    <path d="M0 105 L26 140 L24 175"/>
+    <path d="M0 105 L-32 165 L-12 175"/>
+    <path d="M-18 178 L-6 178"/>
+    <path d="M22 178 L34 178"/>
+  `),
 
-  /* Supine = nằm ngửa, side view (head left). Body horizontal at y=130. */
-  supine: `
-    <g class="figure">
-      <circle cx="-90" cy="130" r="13" fill="${STROKE}" stroke="none"/>
-      <path d="M-77 130 L40 130"/>
-      <g class="su-arm"><path d="M-30 130 L-30 80"/></g>
-      <g class="su-leg"><path d="M40 130 L40 80"/></g>
-    </g>`,
+  // ===== supine (dead-bug, pelvic-tilt): lying with limbs alternating =====
+  supine: pose('p p1', `
+    ${head(-90, 130)}
+    <path d="M-78 130 L40 130"/>
+    <path d="M-30 130 L-30 78"/>
+    <path d="M40 130 L40 78"/>
+    <path d="M40 78 L24 78"/>
+  `) + pose('p p2', `
+    ${head(-90, 130)}
+    <path d="M-78 130 L40 130"/>
+    <path d="M-30 130 L-30 78"/>
+    <path d="M-30 78 L-66 78"/>
+    <path d="M40 130 L80 130"/>
+  `) + pose('p p3', `
+    ${head(-90, 130)}
+    <path d="M-78 130 L40 130"/>
+    <path d="M-30 130 L-30 78"/>
+    <path d="M40 130 L40 78"/>
+    <path d="M40 78 L24 78"/>
+  `),
 
-  bridge: `
-    <g class="figure">
-      <circle cx="-90" cy="135" r="13" fill="${STROKE}" stroke="none"/>
-      <g class="br-body">
-        <path d="M-77 135 L20 135"/>
-        <path d="M-50 135 L-50 165"/>
-      </g>
-      <path d="M20 135 L60 135"/>
-      <path d="M60 135 L60 165"/>
-    </g>`,
+  // ===== bridge: lying flat → hips lifted =====
+  bridge: pose('p p1', `
+    ${head(-90, 135)}
+    <path d="M-78 135 L20 135"/>
+    <path d="M20 135 L-10 135"/>
+    <path d="M20 135 L60 135"/>
+    <path d="M60 135 L60 165"/>
+  `) + pose('p p2', `
+    ${head(-90, 135)}
+    <path d="M-78 135 Q-30 105 20 105"/>
+    <path d="M20 105 L60 135"/>
+    <path d="M60 135 L60 165"/>
+  `),
 
-  /* Quadruped = chống tay + gối, side view */
-  quadruped: `
-    <g class="figure">
-      <circle cx="-65" cy="80" r="13" fill="${STROKE}" stroke="none"/>
-      <path class="q-spine" d="M-52 88 L40 88"/>
-      <g class="q-arm-front"><path d="M-40 88 L-40 155"/></g>
-      <g class="q-leg-back"><path d="M30 88 L30 155"/></g>
-      <g class="q-arm-extend"><path d="M-50 88 L-105 60"/></g>
-      <g class="q-leg-extend"><path d="M40 88 L95 60"/></g>
-    </g>`,
+  // ===== quadruped (bird-dog): rest → opposite limbs extended =====
+  quadruped: pose('p p1', `
+    ${head(-65, 80)}
+    <path d="M-52 88 L40 88"/>
+    <path d="M-40 88 L-40 155"/>
+    <path d="M30 88 L30 155"/>
+  `) + pose('p p2', `
+    ${head(-65, 80)}
+    <path d="M-52 88 L40 88"/>
+    <path d="M-40 88 L-40 155"/>
+    <path d="M30 88 L30 155"/>
+    <path d="M-50 84 L-110 56"/>
+    <path d="M40 88 L100 56"/>
+  `) + pose('p p3', `
+    ${head(-65, 80)}
+    <path d="M-52 88 L40 88"/>
+    <path d="M-40 88 L-40 155"/>
+    <path d="M30 88 L30 155"/>
+  `),
 
-  pushup: `
-    <g class="figure">
-      <circle class="pu-head" cx="-65" cy="100" r="13" fill="${STROKE}" stroke="none"/>
-      <g class="pu-body">
-        <path d="M-52 105 L60 130"/>
-      </g>
-      <path d="M-30 105 L-30 160"/>
-      <path d="M50 130 L50 160"/>
-    </g>`,
+  // ===== cat-cow: cat (rounded up) → cow (sagged down) =====
+  catCow: pose('p p1', `
+    ${head(-65, 95)}
+    <path d="M-52 100 Q-5 70 40 100"/>
+    <path d="M-42 100 L-42 155"/>
+    <path d="M30 100 L30 155"/>
+  `) + pose('p p2', `
+    ${head(-65, 75)}
+    <path d="M-52 78 Q-5 110 40 78"/>
+    <path d="M-42 78 L-42 155"/>
+    <path d="M30 78 L30 155"/>
+  `),
 
-  plank: `
-    <g class="figure">
-      <circle class="pk-head" cx="-65" cy="105" r="12" fill="${STROKE}" stroke="none"/>
-      <path d="M-52 110 L60 130"/>
-      <path d="M-25 110 L-25 160"/>
-      <path d="M55 130 L55 160"/>
-    </g>`,
+  // ===== plank (and shoulder-tap fallback): hold steady, slight pulse =====
+  plank: pose('p p1', `
+    ${head(-65, 105)}
+    <path d="M-52 110 L60 130"/>
+    <path d="M-25 110 L-25 160"/>
+    <path d="M55 130 L55 160"/>
+  `),
 
-  sidePlank: `
-    <g class="figure">
-      <circle cx="-90" cy="115" r="12" fill="${STROKE}" stroke="none"/>
-      <g class="sp-body">
-        <path d="M-77 117 L50 138"/>
-      </g>
-      <path d="M-30 124 L-30 160"/>
-      <path d="M40 130 L0 160"/>
-    </g>`,
+  // ===== sidePlank: hips lifted variant =====
+  sidePlank: pose('p p1', `
+    ${head(-90, 115)}
+    <path d="M-77 117 L50 138"/>
+    <path d="M-30 124 L-30 160"/>
+    <path d="M40 130 L0 160"/>
+  `),
 
-  childPose: `
-    <g class="figure">
-      <circle cx="-30" cy="110" r="12" fill="${STROKE}" stroke="none"/>
-      <path d="M-18 115 L40 90"/>
-      <path d="M40 90 L40 160"/>
-      <path d="M-18 115 L-90 95"/>
-    </g>`,
+  // ===== childPose: static, breathing scale (driven by CSS) =====
+  childPose: pose('p p1', `
+    ${head(-30, 110)}
+    <path d="M-18 115 L40 90"/>
+    <path d="M40 90 L40 160"/>
+    <path d="M-18 115 L-90 95"/>
+  `),
 
-  catCow: `
-    <g class="figure">
-      <circle cx="-65" cy="80" r="13" fill="${STROKE}" stroke="none"/>
-      <path class="cc-spine" d="M-52 88 Q-5 70 40 88"/>
-      <path d="M-42 88 L-42 155"/>
-      <path d="M30 88 L30 155"/>
-    </g>`,
+  // ===== pushup (incline): arms straight → arms bent (chest down) =====
+  pushup: pose('p p1', `
+    ${head(-65, 90)}
+    <path d="M-52 95 L60 125"/>
+    <path d="M-30 95 L-30 155"/>
+    <path d="M50 125 L50 155"/>
+  `) + pose('p p2', `
+    ${head(-50, 110)}
+    <path d="M-38 115 L60 135"/>
+    <path d="M-30 115 L-22 135 L-30 155"/>
+    <path d="M50 135 L50 155"/>
+  `),
 
-  stretchSeated: `
-    <g class="figure">
-      <circle cx="0" cy="55" r="13" fill="${STROKE}" stroke="none"/>
-      <path d="M0 68 Q5 110 60 130"/>
-      <path d="M0 90 L60 130"/>
-      <path d="M60 130 L60 175"/>
-    </g>`,
+  // ===== calfRaise: feet flat → heels lifted =====
+  calfRaise: pose('p p1', `
+    ${head(0, 14)}
+    <path d="M0 24 L0 95"/>
+    <path d="M0 38 L-12 78"/>
+    <path d="M0 38 L12 78"/>
+    <path d="M0 95 L-12 175"/>
+    <path d="M0 95 L12 175"/>
+    <path d="M-22 178 L-2 178"/>
+    <path d="M2 178 L22 178"/>
+  `) + pose('p p2', `
+    ${head(0, 4)}
+    <path d="M0 14 L0 85"/>
+    <path d="M0 28 L-12 68"/>
+    <path d="M0 28 L12 68"/>
+    <path d="M0 85 L-12 165"/>
+    <path d="M0 85 L12 165"/>
+    <path d="M-22 168 L-12 165"/>
+    <path d="M12 165 L22 168"/>
+  `),
 
-  calfRaise: `
-    <g class="figure">
-      <circle class="cr-head" cx="0" cy="22" r="14" fill="${STROKE}" stroke="none"/>
-      <path d="M0 36 L0 110"/>
-      <path d="M0 56 L-26 92"/>
-      <path d="M0 56 L26 92"/>
-      <g class="cr-legs">
-        <path d="M0 110 L-15 170"/>
-        <path d="M0 110 L15 170"/>
-      </g>
-    </g>`,
+  // ===== seated stretch: static =====
+  stretchSeated: pose('p p1', `
+    ${head(0, 55)}
+    <path d="M0 65 Q5 105 60 130"/>
+    <path d="M0 85 L60 130"/>
+    <path d="M60 130 L60 175"/>
+  `),
 };
 
-/** Map every exercise id → animation kind. */
 export const EXERCISE_TO_ANIM = Object.freeze({
   'walk-warmup': 'walk',
   'walk-zone2': 'walk',
@@ -191,6 +267,6 @@ export const EXERCISE_TO_ANIM = Object.freeze({
 export function makeAnimation(exerciseId) {
   const kind = EXERCISE_TO_ANIM[exerciseId] ?? 'plank';
   const body = SVG_BODY[kind] ?? SVG_BODY.plank;
-  const src = `<svg xmlns="http://www.w3.org/2000/svg" class="anim anim-${kind}" viewBox="-110 0 220 200" stroke="currentColor" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;
+  const src = `<svg xmlns="http://www.w3.org/2000/svg" class="anim anim-${kind}" viewBox="-110 0 220 200" stroke="currentColor" stroke-width="${STROKE_W}" fill="none" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;
   return new DOMParser().parseFromString(src, 'image/svg+xml').documentElement;
 }
