@@ -17,6 +17,7 @@ import { getExercise } from '../data/exercises.js';
 import { navigate } from '../router.js';
 import { fmtTime } from '../ui/format.js';
 import { button, el, icon, mount } from '../ui/dom.js';
+import { makeAnimation } from '../data/animations.js';
 import * as Speech from '../audio/speech.js';
 import * as Sound from '../audio/sound.js';
 
@@ -97,7 +98,7 @@ function activeView(block, ex) {
   const setCount = block.sets;
   const setLabel = `Set ${session.setIdx + 1}/${setCount}`;
   return el('div.session-main', {}, [
-    el('div.exercise-icon', {}, [exerciseEmoji(ex)]),
+    el('div.anim-stage', {}, [makeAnimation(ex.id)]),
     el('h1.exercise-title', {}, [ex.name]),
     el('div.exercise-meta', {}, [setLabel]),
     bigDisplay(block, ex),
@@ -325,12 +326,4 @@ function onTimeUp() {
 
 function repLabel(ex) {
   return ex.mode === 'reps-per-side' ? 'rep mỗi bên' : 'rep';
-}
-
-function exerciseEmoji(ex) {
-  const map = {
-    cardio: '🏃', warmup: '🚶', cooldown: '🚶', core: '🔥', lower: '🦵',
-    upper: '💪', flexibility: '🧘', 'full-body': '⚡',
-  };
-  return map[ex.type] ?? '💪';
 }

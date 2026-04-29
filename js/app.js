@@ -3,7 +3,8 @@
  */
 
 import { ROUTES } from './constants.js';
-import { state, load as loadState, onChange } from './state.js';
+import { state, load as loadState, onChange, setProfile } from './state.js';
+import { SEED_PROFILE } from './bootstrap.js';
 import * as Router from './router.js';
 import * as Speech from './audio/speech.js';
 import * as Onboarding from './views/onboarding.js';
@@ -28,6 +29,9 @@ function registerRoutes() {
 
 function main() {
   loadState();
+  // TEMP: skip onboarding for v0.1 personal use — seed profile from bootstrap.
+  // Remove this block when onboarding is redesigned.
+  if (!state.profile) setProfile({ ...SEED_PROFILE });
   applyTheme();
   Speech.init();
   registerRoutes();

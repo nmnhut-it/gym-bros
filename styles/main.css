@@ -14,7 +14,7 @@
  *   utils    → spacing, text helpers
  * ============================================================ */
 
-@layer reset, base, layout, forms, wizard, plan, session, progress, tv, utils;
+@layer reset, base, layout, forms, wizard, plan, session, anim, progress, tv, utils;
 
 /* ===== RESET ===== */
 @layer reset {
@@ -523,6 +523,16 @@
     font-size: 72px;
     line-height: 1;
   }
+  .anim-stage {
+    width: 100%;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, rgba(251,146,60,0.05), transparent);
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border);
+  }
   .exercise-title {
     font-size: var(--fs-2xl);
     font-weight: 800;
@@ -596,6 +606,155 @@
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-12px); }
   }
+}
+
+/* ===== ANIMATIONS — stick figure SVG keyframes ===== */
+@layer anim {
+  .anim {
+    width: 220px;
+    height: 200px;
+    color: var(--brand);
+    display: block;
+    margin: 0 auto;
+  }
+  .anim .figure {
+    transform-origin: center;
+  }
+  /* allow consumer to retempo animations via custom property */
+  .anim { --tempo: 2.4s; }
+
+  /* ===== walk: legs + arms swing =====
+     Uses 2 group children (.arm-front .arm-back .leg-front .leg-back) */
+  @keyframes walk-swing-a {
+    0%, 100% { transform: rotate(20deg); }
+    50%      { transform: rotate(-20deg); }
+  }
+  @keyframes walk-swing-b {
+    0%, 100% { transform: rotate(-20deg); }
+    50%      { transform: rotate(20deg); }
+  }
+  .anim-walk { --tempo: 1.0s; }
+  .anim-walk .leg-front, .anim-walk .arm-back {
+    transform-origin: 0 110px;
+    animation: walk-swing-a var(--tempo) ease-in-out infinite;
+  }
+  .anim-walk .leg-back, .anim-walk .arm-front {
+    transform-origin: 0 110px;
+    animation: walk-swing-b var(--tempo) ease-in-out infinite;
+  }
+  .anim-walk .arm-front, .anim-walk .arm-back { transform-origin: 0 56px; }
+
+  /* ===== squat: down/up =====
+     Whole body + legs flex */
+  @keyframes squat-down {
+    0%, 100% { transform: translateY(0)   scaleY(1); }
+    50%      { transform: translateY(28px) scaleY(0.78); }
+  }
+  @keyframes squat-legs {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-22px); }
+  }
+  .anim-squat { --tempo: 2.2s; }
+  .anim-squat .figure { animation: squat-down var(--tempo) ease-in-out infinite; transform-origin: 0 175px; }
+  .anim-squat .sq-leg-l, .anim-squat .sq-leg-r {
+    animation: squat-legs var(--tempo) ease-in-out infinite;
+    transform-origin: 0 110px;
+  }
+
+  /* ===== lunge: rear leg back, hold, return ===== */
+  @keyframes lunge-cycle {
+    0%, 100% { transform: translateX(0)   translateY(0); }
+    50%      { transform: translateX(-6px) translateY(20px); }
+  }
+  .anim-lunge { --tempo: 2.6s; }
+  .anim-lunge .figure { animation: lunge-cycle var(--tempo) ease-in-out infinite; transform-origin: 0 175px; }
+
+  /* ===== supine (dead-bug, pelvic-tilt): arm + leg alternating raise =====
+     Single arm/leg in our SVG → just animate them up/down */
+  @keyframes supine-arm {
+    0%, 50%, 100% { transform: rotate(0deg); }
+    25%           { transform: rotate(-90deg); }
+  }
+  @keyframes supine-leg {
+    0%, 50%, 100% { transform: rotate(0deg); }
+    75%           { transform: rotate(-90deg); }
+  }
+  .anim-supine { --tempo: 3.0s; }
+  .anim-supine .su-arm { transform-origin: -30px 130px; animation: supine-arm var(--tempo) ease-in-out infinite; }
+  .anim-supine .su-leg { transform-origin: 40px 130px; animation: supine-leg var(--tempo) ease-in-out infinite; }
+
+  /* ===== bridge: hips lift up/down ===== */
+  @keyframes bridge-lift {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-22px); }
+  }
+  .anim-bridge { --tempo: 2.4s; }
+  .anim-bridge .br-body { animation: bridge-lift var(--tempo) ease-in-out infinite; transform-origin: -50px 165px; }
+
+  /* ===== quadruped (bird-dog): arm + leg extending alternately =====
+     Animated extended arm + leg (.q-arm-extend .q-leg-extend) */
+  @keyframes qd-arm {
+    0%, 25%, 100% { opacity: 0; transform: translate(15px, 25px); }
+    35%, 65%      { opacity: 1; transform: translate(0, 0); }
+    75%           { opacity: 0; transform: translate(15px, 25px); }
+  }
+  @keyframes qd-leg {
+    0%, 25%, 75%, 100% { opacity: 0; transform: translate(-15px, 25px); }
+    35%, 65%           { opacity: 1; transform: translate(0, 0); }
+  }
+  .anim-quadruped { --tempo: 3.0s; }
+  .anim-quadruped .q-arm-extend { animation: qd-arm var(--tempo) ease-in-out infinite; transform-origin: -50px 88px; }
+  .anim-quadruped .q-leg-extend { animation: qd-leg var(--tempo) ease-in-out infinite; transform-origin: 40px 88px; }
+
+  /* ===== cat-cow: figure pulses up/down to suggest arch ===== */
+  @keyframes cc-arch {
+    0%, 100% { transform: translateY(0)  scaleY(1); }
+    50%      { transform: translateY(-8px) scaleY(1.08); }
+  }
+  .anim-catCow { --tempo: 3.0s; }
+  .anim-catCow .figure { animation: cc-arch var(--tempo) ease-in-out infinite; transform-origin: center; }
+
+  /* ===== plank: subtle pulse so user sees something is alive ===== */
+  @keyframes plank-pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.7; }
+  }
+  .anim-plank { --tempo: 2.0s; }
+  .anim-plank .figure { animation: plank-pulse var(--tempo) ease-in-out infinite; }
+
+  /* ===== side plank: same idea, pulse ===== */
+  @keyframes sp-lift {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+  }
+  .anim-sidePlank { --tempo: 2.0s; }
+  .anim-sidePlank .sp-body { animation: sp-lift var(--tempo) ease-in-out infinite; transform-origin: -77px 160px; }
+
+  /* ===== child pose: static, slow breathing scale ===== */
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.02); }
+  }
+  .anim-childPose { --tempo: 4.0s; }
+  .anim-childPose .figure { animation: breathe var(--tempo) ease-in-out infinite; transform-origin: 0 130px; }
+  .anim-stretchSeated { --tempo: 4.0s; }
+  .anim-stretchSeated .figure { animation: breathe var(--tempo) ease-in-out infinite; }
+
+  /* ===== pushup: chest down/up ===== */
+  @keyframes pushup-cycle {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(15px); }
+  }
+  .anim-pushup { --tempo: 2.4s; }
+  .anim-pushup .pu-body, .anim-pushup .pu-head { animation: pushup-cycle var(--tempo) ease-in-out infinite; }
+
+  /* ===== calf raise: heels up/down ===== */
+  @keyframes calf-up {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-12px); }
+  }
+  .anim-calfRaise { --tempo: 1.6s; }
+  .anim-calfRaise .figure { animation: calf-up var(--tempo) ease-in-out infinite; transform-origin: 0 170px; }
 }
 
 /* ===== PROGRESS ===== */

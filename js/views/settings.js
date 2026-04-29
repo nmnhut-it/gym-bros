@@ -16,9 +16,25 @@ export function render(root) {
       planCard(),
       audioCard(),
       displayCard(),
+      disclaimerCard(),
       dangerCard(),
     ]),
     navBar(ROUTES.SETTINGS),
+  );
+}
+
+function disclaimerCard() {
+  return card('Cần biết',
+    el('div.alert.alert-warning', {}, [
+      el('strong', {}, ['Về thông số mặc định:']),
+      el('p', {}, [
+        'Số rep, set, thời gian nghỉ trong app này là default common-knowledge ' +
+        '(tham khảo cách tập phổ biến) — KHÔNG dựa trên nghiên cứu peer-reviewed ' +
+        'hay được chứng nhận bởi PT có giấy phép. Nguyên tắc lớn (tránh Valsalva ' +
+        'cho thoát vị, walking incline đốt mỡ, beginner cần volume thấp) thì có ' +
+        'cơ sở. Test thử + lắng nghe cơ thể, đau là dừng.',
+      ]),
+    ]),
   );
 }
 
