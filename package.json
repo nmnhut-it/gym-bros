@@ -1,0 +1,14 @@
+{
+  "name": "gym-bros",
+  "version": "0.1.0",
+  "description": "Home gym web app — single-page, vanilla JS, localStorage. Auto-generates safe workout plans from your profile.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes serve -l 5173 .",
+    "lan": "npx --yes serve -l tcp://0.0.0.0:5173 .",
+    "deploy": "npx --yes wrangler pages deploy . --project-name=gym-bros"
+  },
+  "keywords": ["gym", "fitness", "workout", "spa", "vanilla-js"],
+  "license": "MIT"
+}
