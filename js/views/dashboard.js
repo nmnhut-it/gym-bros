@@ -33,10 +33,10 @@ function quickActions() {
       el('span.qa-label', {}, ['Tập nhanh']),
       el('span.qa-desc', {}, ['Chọn nhóm cơ + thời lượng']),
     ]),
-    el('button.quick-action.is-soon', { type: 'button', disabled: true, title: 'Chưa làm xong' }, [
+    el('button.quick-action', { onClick: () => navigate(ROUTES.BROWSE), type: 'button' }, [
       el('span.qa-icon', {}, ['📋']),
       el('span.qa-label', {}, ['Tự chọn bài']),
-      el('span.qa-desc', {}, ['Sắp có']),
+      el('span.qa-desc', {}, ['Browse + tick từ thư viện']),
     ]),
   ]);
 }

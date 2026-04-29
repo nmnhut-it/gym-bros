@@ -13,6 +13,7 @@ import * as Plan from './views/plan.js';
 import * as Session from './views/session.js';
 import * as Progress from './views/progress.js';
 import * as Settings from './views/settings.js';
+import * as Browse from './views/browse.js';
 
 function applyTheme() {
   document.body.classList.toggle('tv-mode', !!state.settings.tvMode);
@@ -25,6 +26,7 @@ function registerRoutes() {
   Router.register(ROUTES.SESSION,    Session.render);
   Router.register(ROUTES.PROGRESS,   Progress.render);
   Router.register(ROUTES.SETTINGS,   Settings.render);
+  Router.register(ROUTES.BROWSE,     Browse.render);
 }
 
 function main() {

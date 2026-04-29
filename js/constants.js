@@ -22,6 +22,7 @@ export const ROUTES = Object.freeze({
   SESSION: '#/session',
   PROGRESS: '#/progress',
   SETTINGS: '#/settings',
+  BROWSE: '#/browse',
 });
 
 export const GENDER = Object.freeze({ MALE: 'male', FEMALE: 'female', OTHER: 'other' });
