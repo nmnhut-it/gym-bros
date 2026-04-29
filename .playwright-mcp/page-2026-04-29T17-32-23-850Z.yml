@@ -1,0 +1,86 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - main [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: Chào buổi sáng,
+        - generic [ref=e6]: Nhứt
+        - generic [ref=e7]: Thứ Năm · 30/4/2026
+      - generic [ref=e9]:
+        - generic [ref=e10]: 😴
+        - heading "Hôm nay nghỉ" [level=2] [ref=e11]
+        - paragraph [ref=e12]: Cơ thể cần nghỉ để hồi phục. Ngủ sớm + uống đủ nước.
+        - button "Vẫn muốn tập nhẹ?" [ref=e13] [cursor=pointer]
+      - generic [ref=e14]:
+        - button "⚡ Tập nhanh Chọn nhóm cơ + thời lượng" [ref=e15] [cursor=pointer]:
+          - generic [ref=e16]: ⚡
+          - generic [ref=e17]: Tập nhanh
+          - generic [ref=e18]: Chọn nhóm cơ + thời lượng
+        - button "📋 Tự chọn bài Sắp có" [disabled] [ref=e19]:
+          - generic [ref=e20]: 📋
+          - generic [ref=e21]: Tự chọn bài
+          - generic [ref=e22]: Sắp có
+      - generic [ref=e23]:
+        - generic [ref=e24]:
+          - generic [ref=e25]: "0"
+          - generic [ref=e26]: ngày streak 🔥
+        - generic [ref=e27]:
+          - generic [ref=e28]: "0"
+          - generic [ref=e29]: buổi tuần này
+        - generic [ref=e30]:
+          - generic [ref=e31]: 0 phút
+          - generic [ref=e32]: tổng tuần
+      - generic [ref=e33]:
+        - heading "Cân nặng" [level=2] [ref=e34]
+        - generic [ref=e35]:
+          - generic [ref=e36]:
+            - spinbutton [ref=e37]: "75"
+            - generic [ref=e38]: kg
+            - button "Lưu" [ref=e39] [cursor=pointer]
+          - generic [ref=e40]: Chưa có dữ liệu
+    - navigation [ref=e41]:
+      - button "Hôm nay" [ref=e42] [cursor=pointer]:
+        - img [ref=e43]
+        - generic [ref=e46]: Hôm nay
+      - button "Lịch tuần" [ref=e47] [cursor=pointer]:
+        - img [ref=e48]
+        - generic [ref=e50]: Lịch tuần
+      - button "Tiến trình" [ref=e51] [cursor=pointer]:
+        - img [ref=e52]
+        - generic [ref=e53]: Tiến trình
+      - button "Cài đặt" [ref=e54] [cursor=pointer]:
+        - img [ref=e55]
+        - generic [ref=e58]: Cài đặt
+  - generic [ref=e95]:
+    - generic [ref=e96]:
+      - heading "Tập nhanh" [level=2] [ref=e97]
+      - button "✕" [ref=e98] [cursor=pointer]
+    - paragraph [ref=e99]: App sẽ tự lên 1 buổi vừa với thời gian m có.
+    - generic [ref=e100]:
+      - generic [ref=e101]: Tập trung vào
+      - generic [ref=e102]:
+        - button "Toàn thân" [ref=e103] [cursor=pointer]:
+          - generic [ref=e104]: Toàn thân
+        - button "Cardio (đốt mỡ)" [ref=e105] [cursor=pointer]:
+          - generic [ref=e106]: Cardio (đốt mỡ)
+        - button "Bụng + lõi" [ref=e107] [cursor=pointer]:
+          - generic [ref=e108]: Bụng + lõi
+        - button "Chân + mông" [ref=e109] [cursor=pointer]:
+          - generic [ref=e110]: Chân + mông
+        - button "Tay + ngực" [ref=e111] [cursor=pointer]:
+          - generic [ref=e112]: Tay + ngực
+        - button "Giãn cơ" [ref=e113] [cursor=pointer]:
+          - generic [ref=e114]: Giãn cơ
+    - generic [ref=e115]:
+      - generic [ref=e116]: Thời lượng
+      - generic [ref=e117]:
+        - button "15 phút" [ref=e118] [cursor=pointer]:
+          - generic [ref=e119]: 15 phút
+        - button "20 phút" [ref=e120] [cursor=pointer]:
+          - generic [ref=e121]: 20 phút
+        - button "30 phút" [ref=e122] [cursor=pointer]:
+          - generic [ref=e123]: 30 phút
+        - button "45 phút" [ref=e124] [cursor=pointer]:
+          - generic [ref=e125]: 45 phút
+        - button "60 phút" [ref=e126] [cursor=pointer]:
+          - generic [ref=e127]: 60 phút
+    - button "Bắt đầu 🔥" [ref=e128] [cursor=pointer]

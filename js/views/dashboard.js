@@ -3,8 +3,9 @@
  */
 
 import { ROUTES, WEEKDAY_LABEL_VI_LONG } from '../constants.js';
-import { state, recordWeight } from '../state.js';
+import { state, recordWeight, setAdHocDay } from '../state.js';
 import { getTodayDay, isRestDay } from '../plan/generator.js';
+import { generateQuickSession, FOCUS, focusLabel } from '../plan/quick.js';
 import { navigate } from '../router.js';
 import { fmtDuration, todayISO } from '../ui/format.js';
 import { button, card, el, mount } from '../ui/dom.js';
@@ -17,11 +18,94 @@ export function render(root) {
     el('main.screen', {}, [
       header(profile.name),
       todayCard(day),
+      quickActions(),
       quickStats(),
       weightWidget(),
     ]),
     navBar(ROUTES.DASHBOARD),
   );
+}
+
+function quickActions() {
+  return el('div.quick-actions', {}, [
+    el('button.quick-action', { onClick: openQuickSheet, type: 'button' }, [
+      el('span.qa-icon', {}, ['⚡']),
+      el('span.qa-label', {}, ['Tập nhanh']),
+      el('span.qa-desc', {}, ['Chọn nhóm cơ + thời lượng']),
+    ]),
+    el('button.quick-action.is-soon', { type: 'button', disabled: true, title: 'Chưa làm xong' }, [
+      el('span.qa-icon', {}, ['📋']),
+      el('span.qa-label', {}, ['Tự chọn bài']),
+      el('span.qa-desc', {}, ['Sắp có']),
+    ]),
+  ]);
+}
+
+/** Module-scoped so re-renders preserve user choices. */
+const quickDraft = { focus: FOCUS.ALL, durationMin: 30 };
+let quickSheetEl = null;
+
+function openQuickSheet() {
+  if (quickSheetEl) quickSheetEl.remove();
+  quickSheetEl = buildQuickSheet();
+  document.body.appendChild(quickSheetEl);
+}
+
+function closeQuickSheet() {
+  if (quickSheetEl) { quickSheetEl.remove(); quickSheetEl = null; }
+}
+
+function buildQuickSheet() {
+  const root = el('div.sheet-backdrop', {});
+  root.addEventListener('click', (e) => { if (e.target === root) closeQuickSheet(); });
+  root.appendChild(el('div.sheet', {}, [
+    el('div.sheet-header', {}, [
+      el('h2', {}, ['Tập nhanh']),
+      el('button.icon-btn', { type: 'button', onClick: closeQuickSheet }, ['✕']),
+    ]),
+    el('p.muted', {}, ['App sẽ tự lên 1 buổi vừa với thời gian m có.']),
+    focusField(),
+    durationField(),
+    button('Bắt đầu 🔥', startQuickSession, { variant: 'primary', large: true, full: true }),
+  ]));
+  return root;
+}
+
+function focusField() {
+  const opts = [FOCUS.ALL, FOCUS.CARDIO, FOCUS.CORE, FOCUS.LOWER, FOCUS.UPPER, FOCUS.FLEXIBILITY];
+  return el('div.field', {}, [
+    el('span.field-label', {}, ['Tập trung vào']),
+    el('div.option-grid', {}, opts.map((f) =>
+      el(`button.option${quickDraft.focus === f ? '.selected' : ''}`,
+        { type: 'button', onClick: () => { quickDraft.focus = f; openQuickSheet(); } },
+        [el('div.option-label', {}, [focusLabel(f)])],
+      ),
+    )),
+  ]);
+}
+
+function durationField() {
+  const opts = [15, 20, 30, 45, 60];
+  return el('div.field', {}, [
+    el('span.field-label', {}, ['Thời lượng']),
+    el('div.option-grid', {}, opts.map((m) =>
+      el(`button.option${quickDraft.durationMin === m ? '.selected' : ''}`,
+        { type: 'button', onClick: () => { quickDraft.durationMin = m; openQuickSheet(); } },
+        [el('div.option-label', {}, [`${m} phút`])],
+      ),
+    )),
+  ]);
+}
+
+function startQuickSession() {
+  const day = generateQuickSession({
+    focus: quickDraft.focus,
+    durationMin: quickDraft.durationMin,
+    profile: state.profile,
+  });
+  setAdHocDay(day);
+  closeQuickSheet();
+  navigate(ROUTES.SESSION);
 }
 
 function header(name) {

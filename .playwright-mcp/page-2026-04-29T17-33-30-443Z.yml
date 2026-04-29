@@ -1,0 +1,22 @@
+- main [ref=e240]:
+  - generic [ref=e241]:
+    - button "Thoát" [ref=e242] [cursor=pointer]:
+      - img [ref=e243]
+    - generic [ref=e249]: Bài 2/7
+    - button "Bỏ qua" [ref=e250] [cursor=pointer]:
+      - img [ref=e251]
+  - generic [ref=e253]:
+    - img [ref=e255]
+    - heading "Nghiêng xương chậu" [level=1] [ref=e258]
+    - generic [ref=e259]: Set 1/2
+    - generic [ref=e260]:
+      - generic [ref=e261]: 0/11
+      - generic [ref=e262]: rep
+    - paragraph [ref=e263]: Nằm ngửa, gối co. Hóp bụng nhẹ để ép lưng dưới sát sàn (như xoá khoảng cách giữa lưng và mặt sàn). Giữ 2 giây rồi thả. Tập trung dùng cơ bụng dưới.
+    - generic [ref=e264]:
+      - generic [ref=e265]: Hóp bụng
+      - generic [ref=e266]: Lưng ép sàn
+      - generic [ref=e267]: Đừng nín thở
+  - generic [ref=e268]:
+    - button "Tạm dừng" [ref=e269] [cursor=pointer]
+    - button "Hoàn thành set" [ref=e270] [cursor=pointer]

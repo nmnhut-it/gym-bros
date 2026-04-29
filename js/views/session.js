@@ -11,12 +11,12 @@
  */
 
 import { DEFAULT_REST_SECONDS, ROUTES, TICK_MS } from '../constants.js';
-import { state, recordSession } from '../state.js';
+import { state, recordSession, setAdHocDay } from '../state.js';
 import { getTodayDay } from '../plan/generator.js';
-import { getExercise } from '../data/exercises.js';
 import { navigate } from '../router.js';
 import { fmtTime } from '../ui/format.js';
 import { button, el, icon, mount } from '../ui/dom.js';
+import { EXERCISES, getExercise } from '../data/exercises.js';
 import { makeAnimation } from '../data/animations.js';
 import * as Speech from '../audio/speech.js';
 import * as Sound from '../audio/sound.js';
@@ -46,7 +46,8 @@ export function render(root) {
 }
 
 function bootSession() {
-  const day = getTodayDay(state.plan);
+  // Ad-hoc plan takes precedence over today's scheduled plan.
+  const day = state.adHocDay ?? getTodayDay(state.plan);
   session.day = day;
   session.blockIdx = 0;
   session.setIdx = 0;
@@ -149,13 +150,57 @@ function restView(block, ex) {
 function sessionControls() {
   if (session.phase === 'intro') {
     return el('footer.session-footer', {}, [
-      button('Bắt đầu set 🔥', startSet, { variant: 'primary', large: true, full: true }),
+      button('Đổi bài', openSwapSheet, { variant: 'ghost' }),
+      button('Bắt đầu set 🔥', startSet, { variant: 'primary', large: true }),
     ]);
   }
   return el('footer.session-footer', {}, [
     button(session.paused ? 'Tiếp tục' : 'Tạm dừng', togglePause, { variant: 'secondary' }),
     button(session.phase === 'rest' ? 'Bỏ qua nghỉ' : 'Hoàn thành set', completeOrSkip, { variant: 'primary', large: true }),
   ]);
+}
+
+/** Show a sheet of similar-type exercises the user can swap to. */
+function openSwapSheet() {
+  const cur = currentExercise();
+  const profile = state.profile;
+  const candidates = Object.values(EXERCISES).filter((ex) => {
+    if (ex.id === cur.id) return false;
+    if (ex.type !== cur.type) return false;
+    if (ex.unsafeFor?.some((c) => profile.conditions.includes(c))) return false;
+    if (ex.equipment?.length && !ex.equipment.some((e) => profile.equipment.includes(e))) return false;
+    return true;
+  });
+  const sheet = el('div.sheet-backdrop', {});
+  sheet.addEventListener('click', (e) => { if (e.target === sheet) sheet.remove(); });
+  sheet.appendChild(el('div.sheet', {}, [
+    el('div.sheet-header', {}, [
+      el('h2', {}, ['Đổi sang bài khác']),
+      el('button.icon-btn', { type: 'button', onClick: () => sheet.remove() }, ['✕']),
+    ]),
+    candidates.length === 0
+      ? el('p.muted', {}, ['Không tìm thấy bài tương tự an toàn cho m. Bỏ qua bằng nút ⏭ ở header.'])
+      : el('div.swap-list', {}, candidates.map((ex) => el('button.swap-item', {
+          type: 'button',
+          onClick: () => { swapTo(ex.id); sheet.remove(); },
+        }, [
+          el('div.swap-name', {}, [ex.name]),
+          el('div.swap-desc.muted', {}, [ex.cues?.join(' · ') || '']),
+        ]))),
+  ]));
+  document.body.appendChild(sheet);
+}
+
+function swapTo(newExerciseId) {
+  const idx = session.blockIdx;
+  const old = session.day.blocks[idx];
+  // Replace the block in-place. Mutating session.day is fine — it's a local copy
+  // bootstrapped from state, never persisted directly.
+  session.day = {
+    ...session.day,
+    blocks: session.day.blocks.map((b, i) => i === idx ? { ...old, exerciseId: newExerciseId } : b),
+  };
+  draw();
 }
 
 // ---------- transitions ----------
@@ -238,6 +283,7 @@ function confirmExit() {
   stopTicker();
   Speech.cancel();
   session.day = null;
+  setAdHocDay(null);
   navigate(ROUTES.DASHBOARD);
 }
 
@@ -252,6 +298,7 @@ function finish() {
     blocksDone: session.blocksCompleted,
     totalBlocks: session.day.blocks.length,
   });
+  setAdHocDay(null);
   showFinishCard();
 }
 

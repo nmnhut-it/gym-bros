@@ -11,9 +11,11 @@ export function fmtTime(sec) {
   return `${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`;
 }
 
-/** Format seconds as a humanized duration ("5 phút", "1h 20p"). */
+/** Format seconds as a humanized duration ("20 giây", "5 phút", "1h 20p"). */
 export function fmtDuration(sec) {
-  const m = Math.round(sec / 60);
+  const s = Math.max(0, Math.round(sec));
+  if (s < 60) return `${s} giây`;
+  const m = Math.round(s / 60);
   if (m < 60) return `${m} phút`;
   const h = Math.floor(m / 60);
   const r = m % 60;

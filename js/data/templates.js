@@ -115,7 +115,7 @@ export const WEEK_SCHEDULES = Object.freeze({
     6: DAY_TYPE.CARDIO_CORE,
   }),
   6: Object.freeze({
-    0: DAY_TYPE.RECOVERY,
+    0: DAY_TYPE.STRENGTH_LIGHT,
     1: DAY_TYPE.CARDIO_CORE,
     2: DAY_TYPE.STRENGTH_LIGHT,
     3: DAY_TYPE.CARDIO_LONG,

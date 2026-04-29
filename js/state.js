@@ -23,6 +23,13 @@ export const state = {
   weights: [],
   /** @type {object} */
   settings: { ...DEFAULT_SETTINGS },
+  /**
+   * Ad-hoc session plan from "Quick Session" or custom builder.
+   * When set, the session player uses this instead of today's scheduled day.
+   * Cleared after the session finishes or user exits.
+   * @type {import('./plan/generator.js').PlanDay | null}
+   */
+  adHocDay: null,
 };
 
 /** Load everything from localStorage into memory. Call once at app boot. */
@@ -71,6 +78,12 @@ export function recordWeight(kg) {
   state.weights = next.sort((a, b) => b.date.localeCompare(a.date));
   Storage.save(STORAGE_KEYS.WEIGHTS, state.weights);
   emit('weights');
+}
+
+/** Set the ad-hoc plan day used by the session player. Pass null to clear. */
+export function setAdHocDay(day) {
+  state.adHocDay = day;
+  emit('adHocDay');
 }
 
 /** Patch settings (merges into current). */

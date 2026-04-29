@@ -204,6 +204,86 @@
   .stat-num { font-size: var(--fs-xl); font-weight: 800; color: var(--brand); line-height: 1; }
   .stat-label { font-size: var(--fs-xs); color: var(--fg-2); }
 
+  /* quick action tiles */
+  .quick-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-3);
+  }
+  .quick-action {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: var(--sp-4);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-1);
+    text-align: left;
+    transition: border-color 0.15s, transform 0.05s;
+  }
+  .quick-action:hover:not(:disabled) { border-color: var(--brand); }
+  .quick-action:active:not(:disabled) { transform: scale(0.97); }
+  .quick-action.is-soon { opacity: 0.5; cursor: not-allowed; }
+  .qa-icon { font-size: 28px; }
+  .qa-label { font-weight: 600; color: var(--fg-0); }
+  .qa-desc { font-size: var(--fs-xs); color: var(--fg-3); }
+
+  /* bottom-sheet modal */
+  .sheet-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(10,14,26,0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 100;
+    animation: fade-in 0.18s ease;
+  }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+  .sheet {
+    background: var(--bg-1);
+    border-top: 1px solid var(--border);
+    border-radius: var(--r-xl) var(--r-xl) 0 0;
+    width: 100%;
+    max-width: 720px;
+    padding: var(--sp-5);
+    padding-bottom: calc(var(--sp-5) + var(--safe-bottom));
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-4);
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slide-up 0.22s cubic-bezier(.2,.8,.3,1.1);
+  }
+  @keyframes slide-up { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* swap list */
+  .swap-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-2);
+  }
+  .swap-item {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: var(--sp-3) var(--sp-4);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: left;
+    transition: border-color 0.15s;
+  }
+  .swap-item:hover { border-color: var(--brand); }
+  .swap-name { font-weight: 600; color: var(--fg-0); }
+  .swap-desc { font-size: var(--fs-xs); }
+
   /* alerts */
   .alert {
     border-radius: var(--r-md);
