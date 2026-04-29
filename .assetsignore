@@ -1,0 +1,11 @@
+.git
+.gitignore
+.wrangler
+.assetsignore
+node_modules
+package.json
+package-lock.json
+CLAUDE.md
+IMPLEMENTATION_PLAN.md
+*.md
+!README.md
