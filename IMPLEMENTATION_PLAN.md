@@ -41,8 +41,9 @@ Sống tài liệu — cập nhật mỗi lần ship 1 milestone.
 - [ ] Test TV browser (WebOS/Tizen) compatibility — fallback nếu Web Speech không có
 - [ ] PWA: thêm `manifest.json` + service worker để cài như app native trên đt
 - [ ] Wakelock API: giữ màn hình sáng khi đang tập
-- [x] Cloudflare Pages deploy → `gym.nmnhut.dev`
-- [x] GitHub repo + auto-deploy hook
+- [x] Cloudflare Workers Static Assets deploy → `https://gym-bros.nmnhut-en.workers.dev/` (live 2026-04-30)
+- [x] GitHub repo + auto-deploy hook (push to main → Cloudflare rebuilds)
+- [ ] Custom domain `gym.nmnhut.dev` (cần CNAME ở DNS + add Custom Domain trong Worker settings)
 
 ## Phase 3: Multi-profile
 
