@@ -9,3 +9,13 @@ CLAUDE.md
 IMPLEMENTATION_PLAN.md
 *.md
 !README.md
+tests
+.playwright-mcp
+.vscode
+.idea
+.env
+.env.local
+/*.png
+*.log
+.DS_Store
+wrangler.toml
