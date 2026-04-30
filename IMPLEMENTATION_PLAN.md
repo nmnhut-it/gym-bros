@@ -43,7 +43,7 @@ Sống tài liệu — cập nhật mỗi lần ship 1 milestone.
 - [ ] Wakelock API: giữ màn hình sáng khi đang tập
 - [x] Cloudflare Workers Static Assets deploy → `https://gym-bros.nmnhut-en.workers.dev/` (live 2026-04-30)
 - [x] GitHub repo + auto-deploy hook (push to main → Cloudflare rebuilds)
-- [ ] Custom domain `gym.nmnhut.dev` (cần CNAME ở DNS + add Custom Domain trong Worker settings)
+- [x] Custom domain `https://gym.nmnhut.dev/` (live 2026-04-30, SSL auto-provisioned)
 
 ## Phase 3: Multi-profile
 
