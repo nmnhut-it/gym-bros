@@ -143,3 +143,7 @@ export const DEFAULT_REST_SECONDS = 45;
 export const WARMUP_DURATION = 300;
 export const COOLDOWN_DURATION = 300;
 export const TICK_MS = 100;
+
+export const PWA = Object.freeze({
+  SW_PATH: '/sw.js',
+});

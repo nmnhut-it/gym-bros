@@ -7,6 +7,7 @@ import { state, load as loadState, onChange, setProfile } from './state.js';
 import { SEED_PROFILE } from './bootstrap.js';
 import * as Router from './router.js';
 import * as Speech from './audio/speech.js';
+import * as PwaInstall from './pwa/install.js';
 import * as Onboarding from './views/onboarding.js';
 import * as Dashboard from './views/dashboard.js';
 import * as Plan from './views/plan.js';
@@ -36,6 +37,7 @@ function main() {
   if (!state.profile) setProfile({ ...SEED_PROFILE });
   applyTheme();
   Speech.init();
+  PwaInstall.init();
   registerRoutes();
   const root = document.getElementById('app');
   Router.init(root);

@@ -14,11 +14,16 @@ GymBros = home gym web app, single-page, vanilla JS ES modules, localStorage. Ch
 constants → storage / data → state → plan-generator
                                   ↓
             audio + ui-helpers ← views ← router ← app
+                                          ↑
+                       pwa/install + wake-lock (platform glue)
 ```
 
 - `js/constants.js` — every enum + every magic number lives here. **Don't hardcode strings/numbers in other files.**
 - `js/storage.js` — only file that touches `localStorage`. Swap this to migrate storage backends.
-- `js/state.js` — single global state object + setters that auto-persist + emit `state:change`.
+- `js/state.js` — single global state object + setters that auto-persist + emit `state:change`. `migrateProfile()` runs on load to map legacy condition codes.
+- `js/pwa/install.js` — registers `sw.js` + captures `beforeinstallprompt`. Settings shows the install card.
+- `js/wake-lock.js` — acquired in `session.startSet`, released in `finish` / `confirmExit`. Auto re-acquires on visibility change.
+- `manifest.json` + `sw.js` + `icons/*.svg` live at site root so SW scope is `/` and the manifest is reachable from any subpath.
 - `js/bootstrap.js` — temporary `SEED_PROFILE` for v0.1 personal use; removed once onboarding redesign ships (Phase A in IMPLEMENTATION_PLAN.md).
 - `js/data/` — `exercises.js` (database), `templates.js` (day templates), `exercises-content.js` (long-form how-to text), `photos.js` + `animations.js` (visual assets). Adding new exercises = ONLY edit `exercises.js`.
 - `js/plan/` — three **PURE FUNCTIONS**, no state mutation: `generator.js` `(profile)→weekly plan`, `quick.js` `(focus, level)→single ad-hoc session`, `builder.js` `(picked exercises)→runnable day`. Quick + builder share level-scaling logic.

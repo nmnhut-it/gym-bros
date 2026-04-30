@@ -73,10 +73,12 @@ describe('view smoke: each render() produces output without throwing', () => {
     assert.ok(appRoot().children.length > 0);
   });
 
-  it('settings view renders profile + plan + audio cards', async () => {
+  it('settings view renders profile + plan + audio + install cards', async () => {
     const { render } = await import('../js/views/settings.js');
     render(appRoot());
     assert.ok(appRoot().textContent.includes('Cài đặt'));
+    assert.ok(appRoot().textContent.includes('Cài về máy'),
+      'install card should render even when prompt unavailable');
   });
 
   it('browse view renders exercise library', async () => {

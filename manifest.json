@@ -1,0 +1,27 @@
+{
+  "name": "GymBros — Tập gym tại nhà",
+  "short_name": "GymBros",
+  "description": "Tập gym tại nhà với plan tự động, đếm rep tiếng Việt, theo dõi cân nặng. Hoạt động offline sau lần load đầu.",
+  "lang": "vi-VN",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0e1a",
+  "theme_color": "#0a0e1a",
+  "categories": ["health", "fitness", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "maskable"
+    }
+  ]
+}

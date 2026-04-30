@@ -21,6 +21,7 @@ import { makeAnimation } from '../data/animations.js';
 import { openTutorial } from '../ui/tutorial.js';
 import * as Speech from '../audio/speech.js';
 import * as Sound from '../audio/sound.js';
+import * as WakeLock from '../wake-lock.js';
 
 const SECONDS_PER_REP = 3;
 
@@ -212,6 +213,7 @@ function swapTo(newExerciseId) {
 function startSet() {
   Sound.unlock();
   Speech.init();
+  WakeLock.acquire();
   const block = currentBlock();
   const ex = currentExercise();
   Speech.speak(`${ex.name}. Bắt đầu.`, { urgent: true });
@@ -286,6 +288,7 @@ function confirmExit() {
   if (!confirm('Thoát buổi tập? Tiến độ sẽ không lưu.')) return;
   stopTicker();
   Speech.cancel();
+  WakeLock.release();
   session.day = null;
   setAdHocDay(null);
   navigate(ROUTES.DASHBOARD);
@@ -293,6 +296,7 @@ function confirmExit() {
 
 function finish() {
   stopTicker();
+  WakeLock.release();
   Sound.chime();
   Speech.speak('Hoàn thành buổi tập. Tốt lắm!', { urgent: true });
   recordSession({

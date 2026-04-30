@@ -17,7 +17,7 @@ Sống tài liệu — cập nhật mỗi lần ship 1 milestone.
 - Progress: weight chart (vanilla canvas), session history
 - Settings: edit profile, replan, audio, TV mode, reset
 - TV mode: scale up font 2x
-- 60 tests across 5 layers (plan + quick session unit, storage round-trip, state setters + migration, session integration via jsdom + mock timers, view smoke)
+- 80 tests across 6 layers (plan + quick session unit, storage round-trip, state setters + migration, session integration via jsdom + mock timers, view smoke, PWA contract)
 
 ✅ **JTBD coverage** (theo feedback 2026-04-29):
 - JTBD-1 today's plan ✅
@@ -36,11 +36,11 @@ Sống tài liệu — cập nhật mỗi lần ship 1 milestone.
 ## Phase 2: Polish + deploy (next)
 
 - [ ] JTBD-5: ad-hoc log "đã chạy bộ ngoài 30 phút" → vào streak/stats
-- [ ] JTBD-7: Settings card "Tình trạng sức khoẻ" cho phép sửa `conditions[]` post-onboarding, auto replan
+- [ ] JTBD-7: Settings card "Lưu ý sức khoẻ" cho phép sửa `conditions[]` post-onboarding, auto replan
 - [ ] Test thực tế: chạy 1 buổi đầy đủ trên đt, ghi nhận bug/UX
 - [ ] Test TV browser (WebOS/Tizen) compatibility — fallback nếu Web Speech không có
-- [ ] PWA: thêm `manifest.json` + service worker để cài như app native trên đt
-- [ ] Wakelock API: giữ màn hình sáng khi đang tập
+- [x] PWA: `manifest.json` + service worker (cache-first, stale-while-revalidate) + icons SVG (any + maskable). Settings có "Cài về máy" card hiện nút khi `beforeinstallprompt` fire.
+- [x] Wake lock API: `js/wake-lock.js` — acquire ở `startSet`, release ở `finish` / `confirmExit`. Auto re-acquire trên `visibilitychange`.
 - [x] Cloudflare Workers Static Assets deploy → `https://gym-bros.nmnhut-en.workers.dev/` (live 2026-04-30)
 - [x] GitHub repo + auto-deploy hook (push to main → Cloudflare rebuilds)
 - [x] Custom domain `https://gym.nmnhut.dev/` (live 2026-04-30, SSL auto-provisioned)
@@ -100,4 +100,5 @@ Sống tài liệu — cập nhật mỗi lần ship 1 milestone.
 | 2026-04-30 | Nới `bw-squat` cho CORE_MIN (chỉ giữ KNEE_EASY block) | BW squat biên độ vừa + thở đều ổn ngay cả ở mức cẩn thận nhất; filter cũ chế quá tay. Cues mới nhấn "không xuống quá sâu", "thở ra khi đẩy lên". |
 | 2026-04-30 | Thêm `step-up-chair` + `split-squat-assisted` | Mở rộng pool LOWER low-impact-core — single-leg, low-impact, có support thăng bằng. |
 | 2026-04-30 | Đổi tên CONDITION.HERNIA_*/BACK_PAIN/KNEE_PAIN/HIGH_BP → CORE_EASY/CORE_MIN/BACK_EASY/KNEE_EASY | UI + content trung tính (không nêu tên bệnh) cho phiên bản đem bán. Giữ nguyên filter logic. Migration ở state.load() map giá trị cũ → mới. |
+| 2026-04-30 | Ship PWA (manifest + SW + wake lock) thay vì Capacitor cho v1 mobile | Pure-PWA cover được offline + install + fullscreen + wake lock cho 90% usecase, zero build step. Capacitor để dành cho khi cần lên App Store / native push reliable. |
 | 2026-04-30 | Fix bug session.js không re-boot khi đổi adHocDay giữa 2 buổi | render() so sánh `state.adHocDay !== session.day` để re-boot. |

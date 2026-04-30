@@ -7,6 +7,7 @@ import { state, setProfile, setSettings, resetAll } from '../state.js';
 import { navigate } from '../router.js';
 import { button, card, el, mount } from '../ui/dom.js';
 import { navBar } from './_nav.js';
+import * as PwaInstall from '../pwa/install.js';
 
 export function render(root) {
   mount(root,
@@ -16,6 +17,7 @@ export function render(root) {
       planCard(),
       audioCard(),
       displayCard(),
+      installCard(),
       disclaimerCard(),
       dangerCard(),
     ]),
@@ -96,6 +98,34 @@ function displayCard() {
       document.body.classList.toggle('tv-mode', v);
     }),
   );
+}
+
+function installCard() {
+  if (PwaInstall.isStandalone()) {
+    return card('Cài về máy',
+      el('p.muted', {}, ['App đã được cài như app native trên máy này. Mở thẳng từ icon trên Home Screen — không cần browser.']),
+    );
+  }
+  if (!PwaInstall.canInstall()) {
+    return card('Cài về máy',
+      el('p.muted', {}, [
+        'Để cài như app native: ',
+        el('strong', {}, ['Android/Chrome']),
+        ' — đợi browser hiện banner "Add to Home Screen", hoặc menu ⋮ → Cài đặt ứng dụng. ',
+        el('strong', {}, ['iPhone/Safari']),
+        ' — nút Share → "Add to Home Screen".',
+      ]),
+    );
+  }
+  return card('Cài về máy',
+    el('p.muted', {}, ['Cài GymBros như app native — chạy offline, có icon riêng trên Home Screen, không thanh URL chiếm chỗ.']),
+    button('Cài về máy 📲', triggerInstall, { variant: 'primary', full: true }),
+  );
+}
+
+async function triggerInstall() {
+  const outcome = await PwaInstall.promptInstall();
+  if (outcome === 'accepted') render(document.getElementById('app'));
 }
 
 function dangerCard() {
