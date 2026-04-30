@@ -42,7 +42,8 @@ let appRoot = null;
 
 export function render(root) {
   appRoot = root;
-  if (!session.day) bootSession();
+  const fresh = state.adHocDay ?? getTodayDay(state.plan);
+  if (!session.day || session.day !== fresh) bootSession();
   draw();
 }
 

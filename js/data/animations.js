@@ -239,6 +239,8 @@ export const EXERCISE_TO_ANIM = Object.freeze({
   'wall-sit': 'squat',
   'reverse-lunge': 'lunge',
   'standing-calf': 'calfRaise',
+  'step-up-chair': 'lunge',
+  'split-squat-assisted': 'lunge',
 
   'dead-bug': 'supine',
   'pelvic-tilt': 'supine',

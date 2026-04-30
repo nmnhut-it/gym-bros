@@ -2,30 +2,47 @@
 
 Sống tài liệu — cập nhật mỗi lần ship 1 milestone.
 
-## Hiện trạng (v0.1.0 — 2026-04-29)
+## Hiện trạng (2026-04-30)
 
 ✅ **Phase 1: Local MVP** — DONE
 - Cấu trúc modular ES modules
 - Onboarding 7 bước
 - Plan generator với hernia-safe filter + level scaling + equipment fallback
-- Exercise DB ~22 bài (cardio, core, lower, upper, flexibility)
+- Exercise DB 25 bài (cardio, core, lower, upper, flexibility)
 - 4 day templates (cardio-core, strength-light, cardio-long, recovery)
 - 4 weekly schedules (3/4/5/6 days/week)
 - Session player: state machine intro → active → rest → next, TTS đếm rep VI, chuông + beep, countdown 3-2-1
-- Dashboard: today card, streak, weekly stats, quick weight log
+- Dashboard: today card, streak, weekly stats, quick weight log, **Tập nhanh** + **Tự chọn bài** entry
 - Plan view: 7 ngày breakdown
 - Progress: weight chart (vanilla canvas), session history
 - Settings: edit profile, replan, audio, TV mode, reset
 - TV mode: scale up font 2x
+- 14 unit tests (plan + quick session, hernia safety)
+
+✅ **JTBD coverage** (theo feedback 2026-04-29):
+- JTBD-1 today's plan ✅
+- JTBD-2 Quick Session (focus + duration) ✅
+- JTBD-3 Browse library + custom builder ✅
+- JTBD-4 Exercise reference (tutorial sheet, sources, common mistakes) ✅
+- JTBD-5 Ad-hoc external activity log ❌ todo
+- JTBD-6 Swap mid-session ✅
+- JTBD-7 Adjust health condition post-onboarding ❌ todo
+
+✅ **Visual + content polish**
+- Multi-pose stick-figure animations
+- Real-people photo demos cho 14 bài (yuhonas/free-exercise-db, Unlicense)
+- Detailed steps + muscles worked + common mistakes + safety notes + sources cho mỗi bài
 
 ## Phase 2: Polish + deploy (next)
 
+- [ ] JTBD-5: ad-hoc log "đã chạy bộ ngoài 30 phút" → vào streak/stats
+- [ ] JTBD-7: Settings card "Tình trạng sức khoẻ" cho phép sửa `conditions[]` post-onboarding, auto replan
 - [ ] Test thực tế: chạy 1 buổi đầy đủ trên đt, ghi nhận bug/UX
 - [ ] Test TV browser (WebOS/Tizen) compatibility — fallback nếu Web Speech không có
 - [ ] PWA: thêm `manifest.json` + service worker để cài như app native trên đt
 - [ ] Wakelock API: giữ màn hình sáng khi đang tập
-- [ ] Cloudflare Pages deploy → `gym.nmnhut.dev`
-- [ ] GitHub repo + auto-deploy hook
+- [x] Cloudflare Pages deploy → `gym.nmnhut.dev`
+- [x] GitHub repo + auto-deploy hook
 
 ## Phase 3: Multi-profile
 
@@ -79,3 +96,6 @@ Sống tài liệu — cập nhật mỗi lần ship 1 milestone.
 | 2026-04-29 | Subdomain `gym.nmnhut.dev` thay path trên blog | Tách biệt với Hugo blog, deploy độc lập |
 | 2026-04-29 | Filter hernia-unsafe ở plan generator thay UI | Tránh user vô tình chọn bài nguy hiểm |
 | 2026-04-29 | TTS đếm rep auto thay tap-to-count | User đang tập, tay không rảnh để tap đt |
+| 2026-04-30 | Nới `bw-squat` cho HERNIA_ACUTE (chỉ giữ KNEE_PAIN block) | BW squat biên độ vừa + thở đều an toàn pre-surgery; filter cũ chế quá tay. Cues mới nhấn "không xuống quá sâu", "thở ra khi đẩy lên". |
+| 2026-04-30 | Thêm `step-up-chair` + `split-squat-assisted` | Mở rộng pool LOWER hernia-safe — single-leg, low-impact, có support thăng bằng. |
+| 2026-04-30 | Fix bug session.js không re-boot khi đổi adHocDay giữa 2 buổi | render() so sánh `state.adHocDay !== session.day` để re-boot. |
