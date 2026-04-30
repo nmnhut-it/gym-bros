@@ -17,23 +17,23 @@ import { EXERCISES } from '../js/data/exercises.js';
 
 // ---------- fixtures ----------
 
-const HERNIA_USER = Object.freeze({
+const CORE_EASY_USER = Object.freeze({
   name: 'Nhứt', gender: 'male', age: 32, heightCm: 168, weightKg: 75,
   level: 'beginner',
   goals: ['fat-loss', 'general-fitness'],
-  conditions: ['hernia-healed'],
+  conditions: ['core-easy'],
   equipment: ['treadmill', 'treadmill-incline', 'sit-up-bench', 'yoga-mat'],
   daysPerWeek: 3, sessionMinutes: 45,
 });
 
-const HERNIA_ACUTE_USER = { ...HERNIA_USER, conditions: ['hernia-acute'] };
+const CORE_MIN_USER = { ...CORE_EASY_USER, conditions: ['core-min'] };
 
 const ADVANCED_USER = {
-  ...HERNIA_USER, level: 'advanced', conditions: [], age: 28, weightKg: 70, daysPerWeek: 5,
+  ...CORE_EASY_USER, level: 'advanced', conditions: [], age: 28, weightKg: 70, daysPerWeek: 5,
 };
 
 const NO_EQUIPMENT_USER = {
-  ...HERNIA_USER, equipment: ['yoga-mat'], conditions: [],
+  ...CORE_EASY_USER, equipment: ['yoga-mat'], conditions: [],
 };
 
 // ---------- helpers ----------
@@ -59,7 +59,7 @@ function totalSeconds(blocks) {
 
 describe('generatePlan', () => {
   it('returns 7 days regardless of daysPerWeek', () => {
-    const plan = generatePlan(HERNIA_USER);
+    const plan = generatePlan(CORE_EASY_USER);
     assert.equal(plan.days.length, 7);
     assert.deepEqual(plan.days.map((d) => d.weekday), [0, 1, 2, 3, 4, 5, 6]);
   });
@@ -69,19 +69,19 @@ describe('generatePlan', () => {
     // Recovery is a soft active day, not counted toward the user's session quota.
     const TRAINING_TYPES = new Set(['cardio-core', 'strength-light', 'cardio-long']);
     for (const n of [3, 4, 5, 6]) {
-      const plan = generatePlan({ ...HERNIA_USER, daysPerWeek: n });
+      const plan = generatePlan({ ...CORE_EASY_USER, daysPerWeek: n });
       const trainingDays = plan.days.filter((d) => TRAINING_TYPES.has(d.dayType)).length;
       assert.equal(trainingDays, n, `daysPerWeek=${n} → ${trainingDays} training days`);
     }
   });
 
-  it('NEVER schedules an exercise unsafe for hernia-acute', () => {
-    const plan = generatePlan(HERNIA_ACUTE_USER);
+  it('NEVER schedules an exercise unsafe for core-min', () => {
+    const plan = generatePlan(CORE_MIN_USER);
     const blocks = flattenBlocks(plan);
     for (const b of blocks) {
       const ex = EXERCISES[b.exerciseId];
       for (const cond of ex.unsafeFor ?? []) {
-        assert.notEqual(cond, 'hernia-acute', `${ex.id} is unsafe for hernia-acute but was scheduled`);
+        assert.notEqual(cond, 'core-min', `${ex.id} is unsafe for core-min but was scheduled`);
       }
     }
   });
@@ -98,14 +98,14 @@ describe('generatePlan', () => {
   });
 
   it('beginner gets fewer total seconds than advanced for same daysPerWeek', () => {
-    const beg = generatePlan({ ...HERNIA_USER, level: 'beginner', daysPerWeek: 4 });
-    const adv = generatePlan({ ...HERNIA_USER, level: 'advanced', daysPerWeek: 4 });
+    const beg = generatePlan({ ...CORE_EASY_USER, level: 'beginner', daysPerWeek: 4 });
+    const adv = generatePlan({ ...CORE_EASY_USER, level: 'advanced', daysPerWeek: 4 });
     assert.ok(totalSeconds(flattenBlocks(beg)) < totalSeconds(flattenBlocks(adv)),
       'beginner should have lower total volume than advanced');
   });
 
   it('every block has either reps or duration set', () => {
-    const plan = generatePlan(HERNIA_USER);
+    const plan = generatePlan(CORE_EASY_USER);
     for (const b of flattenBlocks(plan)) {
       assert.ok(b.reps !== undefined || b.duration !== undefined,
         `block ${b.exerciseId} missing reps and duration`);
@@ -113,7 +113,7 @@ describe('generatePlan', () => {
   });
 
   it('estimatedMinutes is non-zero for non-rest days', () => {
-    const plan = generatePlan(HERNIA_USER);
+    const plan = generatePlan(CORE_EASY_USER);
     for (const d of plan.days.filter((x) => x.blocks.length > 0)) {
       assert.ok(d.estimatedMinutes > 0, `${d.dayType} has 0 estimated minutes`);
     }
@@ -136,7 +136,7 @@ describe('generateQuickSession', () => {
   });
 
   it('CARDIO focus produces only walk/treadmill blocks', () => {
-    const day = generateQuickSession({ focus: FOCUS.CARDIO, durationMin: 30, profile: HERNIA_USER });
+    const day = generateQuickSession({ focus: FOCUS.CARDIO, durationMin: 30, profile: CORE_EASY_USER });
     for (const b of day.blocks) {
       const ex = EXERCISES[b.exerciseId];
       assert.ok(['cardio', 'warmup', 'cooldown', 'flexibility'].includes(ex.type),
@@ -145,7 +145,7 @@ describe('generateQuickSession', () => {
   });
 
   it('CORE focus only includes core or warm/cool/stretch blocks', () => {
-    const day = generateQuickSession({ focus: FOCUS.CORE, durationMin: 30, profile: HERNIA_USER });
+    const day = generateQuickSession({ focus: FOCUS.CORE, durationMin: 30, profile: CORE_EASY_USER });
     for (const b of day.blocks) {
       const ex = EXERCISES[b.exerciseId];
       assert.ok(['core', 'warmup', 'cooldown', 'flexibility'].includes(ex.type),
@@ -153,25 +153,25 @@ describe('generateQuickSession', () => {
     }
   });
 
-  it('never schedules unsafe exercises for hernia-acute user', () => {
+  it('never schedules unsafe exercises for core-min user', () => {
     for (const focus of Object.values(FOCUS)) {
-      const day = generateQuickSession({ focus, durationMin: 30, profile: HERNIA_ACUTE_USER });
+      const day = generateQuickSession({ focus, durationMin: 30, profile: CORE_MIN_USER });
       for (const b of day.blocks) {
         const ex = EXERCISES[b.exerciseId];
         for (const cond of ex.unsafeFor ?? []) {
-          assert.notEqual(cond, 'hernia-acute', `quick(${focus}): ${ex.id} unsafe for hernia-acute`);
+          assert.notEqual(cond, 'core-min', `quick(${focus}): ${ex.id} unsafe for core-min`);
         }
       }
     }
   });
 
   it('always includes a warmup as the first block', () => {
-    const day = generateQuickSession({ focus: FOCUS.CORE, durationMin: 30, profile: HERNIA_USER });
+    const day = generateQuickSession({ focus: FOCUS.CORE, durationMin: 30, profile: CORE_EASY_USER });
     assert.equal(day.blocks[0].exerciseId, 'walk-warmup');
   });
 
   it('always includes walk-cooldown', () => {
-    const day = generateQuickSession({ focus: FOCUS.LOWER, durationMin: 30, profile: HERNIA_USER });
+    const day = generateQuickSession({ focus: FOCUS.LOWER, durationMin: 30, profile: CORE_EASY_USER });
     const ids = day.blocks.map((b) => b.exerciseId);
     assert.ok(ids.includes('walk-cooldown'), 'no walk-cooldown in session');
   });

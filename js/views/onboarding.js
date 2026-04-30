@@ -125,20 +125,19 @@ function stepGoals() {
 }
 
 function stepConditions() {
-  const hasHernia = draft.conditions.some((c) => c === CONDITION.HERNIA_HEALED || c === CONDITION.HERNIA_ACUTE);
+  const lowImpactCore = draft.conditions.some((c) => c === CONDITION.CORE_EASY || c === CONDITION.CORE_MIN);
   return el('div', {}, [
-    el('h1.h-hero', {}, ['Vấn đề sức khoẻ']),
-    el('p.muted', {}, ['Chọn nếu có — t sẽ loại các bài nguy hiểm cho m. Nếu không có gì cứ bỏ trống.']),
+    el('h1.h-hero', {}, ['Lưu ý khi tập']),
+    el('p.muted', {}, ['Chọn nếu có — t sẽ tránh các bài không phù hợp. Không có gì cứ bỏ trống.']),
     fieldMulti('conditions', [
-      { value: CONDITION.HERNIA_HEALED, label: 'Thoát vị bẹn (đã mổ)', desc: 'Tránh tải nặng + nín thở' },
-      { value: CONDITION.HERNIA_ACUTE,  label: 'Thoát vị bẹn (chưa mổ)', desc: 'Chỉ tập cực nhẹ, không sit-up' },
-      { value: CONDITION.BACK_PAIN,     label: 'Đau lưng',              desc: 'Bài an toàn cho lưng' },
-      { value: CONDITION.KNEE_PAIN,     label: 'Đau gối',               desc: 'Tránh squat sâu, lunge' },
-      { value: CONDITION.HIGH_BP,       label: 'Cao huyết áp',          desc: 'Tránh nín thở rặn' },
+      { value: CONDITION.CORE_EASY, label: 'Tập nhẹ vùng bụng',     desc: 'Tránh sit-up, V-up, plank lâu, deadlift, nín thở rặn' },
+      { value: CONDITION.CORE_MIN,  label: 'Tập rất nhẹ vùng bụng', desc: 'Chỉ thở + đi bộ + bài cơ rất nhẹ' },
+      { value: CONDITION.BACK_EASY, label: 'Lưng nhạy cảm',          desc: 'Tránh tải nặng vào lưng dưới' },
+      { value: CONDITION.KNEE_EASY, label: 'Gối nhạy cảm',           desc: 'Tránh squat sâu, lunge tới' },
     ]),
-    hasHernia ? el('div.alert.alert-warning', {}, [
-      el('strong', {}, ['⚠️ Lưu ý quan trọng:']),
-      el('p', {}, ['App sẽ KHÔNG cho m sit-up đầy đủ trên thanh kẹp chân. Thay bằng dead bug, bird dog, plank gối — vẫn làm chắc bụng mà không tăng áp lực ổ bụng.']),
+    lowImpactCore ? el('div.alert.alert-warning', {}, [
+      el('strong', {}, ['⚠️ Lưu ý:']),
+      el('p', {}, ['App sẽ thay sit-up đầy đủ bằng dead bug, bird dog, plank gối — vẫn làm chắc bụng mà không tăng áp lực ổ bụng. Mọi bài đều nhắc thở đều, không nín thở rặn.']),
     ]) : null,
   ]);
 }
@@ -190,7 +189,7 @@ function stepReview() {
     el('div.review-grid', {}, [
       reviewRow('👤', 'Profile', `${draft.gender === 'male' ? 'Nam' : draft.gender === 'female' ? 'Nữ' : 'Khác'}, ${draft.age} tuổi, ${draft.heightCm}cm, ${draft.weightKg}kg`),
       reviewRow('🎯', 'Mục tiêu', draft.goals.map(goalLabel).join(', ') || '—'),
-      reviewRow('🩺', 'Sức khoẻ', draft.conditions.length ? draft.conditions.map(condLabel).join(', ') : 'Không có vấn đề'),
+      reviewRow('🩺', 'Lưu ý', draft.conditions.length ? draft.conditions.map(condLabel).join(', ') : 'Không có'),
       reviewRow('🏋️', 'Thiết bị', draft.equipment.map(equipLabel).join(', ') || 'Không'),
       reviewRow('📅', 'Lịch', `${draft.daysPerWeek} buổi/tuần, ${draft.sessionMinutes} phút/buổi, ${levelLabel(draft.level)}`),
     ]),
@@ -267,8 +266,8 @@ function goalLabel(g) {
     [GOAL.MUSCLE_GAIN]: 'Tăng cơ', [GOAL.ENDURANCE]: 'Sức bền' })[g] ?? g;
 }
 function condLabel(c) {
-  return ({ [CONDITION.HERNIA_HEALED]: 'Thoát vị (đã mổ)', [CONDITION.HERNIA_ACUTE]: 'Thoát vị (chưa mổ)',
-    [CONDITION.BACK_PAIN]: 'Đau lưng', [CONDITION.KNEE_PAIN]: 'Đau gối', [CONDITION.HIGH_BP]: 'Cao huyết áp' })[c] ?? c;
+  return ({ [CONDITION.CORE_EASY]: 'Tập nhẹ vùng bụng', [CONDITION.CORE_MIN]: 'Tập rất nhẹ vùng bụng',
+    [CONDITION.BACK_EASY]: 'Lưng nhạy cảm', [CONDITION.KNEE_EASY]: 'Gối nhạy cảm' })[c] ?? c;
 }
 function equipLabel(e) {
   return ({ [EQUIPMENT.TREADMILL]: 'Máy chạy bộ', [EQUIPMENT.TREADMILL_INCLINE]: 'Máy có dốc',

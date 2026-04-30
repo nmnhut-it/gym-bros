@@ -4,7 +4,7 @@
 
 ## Project overview
 
-GymBros = home gym web app, single-page, vanilla JS ES modules, localStorage. Target: chạy trên đt + smart TV của user người Việt thoát vị bẹn (đã mổ) muốn giảm mỡ. UI tiếng Việt. Deploy lên Cloudflare Pages tại `gym.nmnhut.dev`.
+GymBros = home gym web app, single-page, vanilla JS ES modules, localStorage. Chạy trên đt + smart TV. UI tiếng Việt. Deploy lên Cloudflare Pages tại `gym.nmnhut.dev`. Có chế độ low-impact-core (CORE_EASY / CORE_MIN) cho người mới tập / cần giữ áp lực ổ bụng thấp — filter ra sit-up đầy đủ, V-up, ab-wheel, deadlift, heavy squat. UI không nêu tên bệnh.
 
 ## Architecture (must understand before editing)
 
@@ -19,18 +19,20 @@ constants → storage / data → state → plan-generator
 - `js/constants.js` — every enum + every magic number lives here. **Don't hardcode strings/numbers in other files.**
 - `js/storage.js` — only file that touches `localStorage`. Swap this to migrate storage backends.
 - `js/state.js` — single global state object + setters that auto-persist + emit `state:change`.
-- `js/data/` — exercise database + day templates. Adding new exercises = ONLY edit `exercises.js`.
-- `js/plan/generator.js` — **PURE FUNCTION** `(profile) → plan`. Don't touch state from here.
-- `js/audio/` — TTS + Web Audio. Don't import elsewhere except views.
-- `js/ui/dom.js` — `el()`, `button()`, `card()`, `icon()`. Use these instead of raw DOM API.
+- `js/bootstrap.js` — temporary `SEED_PROFILE` for v0.1 personal use; removed once onboarding redesign ships (Phase A in IMPLEMENTATION_PLAN.md).
+- `js/data/` — `exercises.js` (database), `templates.js` (day templates), `exercises-content.js` (long-form how-to text), `photos.js` + `animations.js` (visual assets). Adding new exercises = ONLY edit `exercises.js`.
+- `js/plan/` — three **PURE FUNCTIONS**, no state mutation: `generator.js` `(profile)→weekly plan`, `quick.js` `(focus, level)→single ad-hoc session`, `builder.js` `(picked exercises)→runnable day`. Quick + builder share level-scaling logic.
+- `js/audio/` — TTS (`speech.js`) + Web Audio (`sound.js`). Don't import elsewhere except views.
+- `js/ui/dom.js` — `el()`, `button()`, `card()`, `icon()`. Use these instead of raw DOM API. Companions: `format.js` (số/thời gian), `tutorial.js` (how-to sheets).
 - `js/router.js` — hash router. Hash routing chosen so app runs from any path without server config.
-- `js/views/*.js` — one file per route. Each exports `render(root)`. Views build DOM via `el()`, mount to `root`.
+- `js/views/*.js` — one file per route (`onboarding`, `dashboard`, `plan`, `session`, `progress`, `settings`, `browse`, plus shared `_nav`). Each exports `render(root)`. Views build DOM via `el()`, mount to `root`.
 
 ## Critical safety rules (DO NOT BREAK)
 
-1. **Hernia-safe filter is non-negotiable.** Every exercise in `data/exercises.js` MUST declare `unsafeFor` if it raises intra-abdominal pressure. Plan generator filters these out for users with `CONDITION.HERNIA_*`.
-2. **Never add full sit-ups, V-ups, ab-wheel rollouts, deadlifts, heavy squats** to default plans. They're banned for the primary user.
-3. **TTS coaching cues must remind to breathe ("thở đều", "thở ra khi đẩy")** — Valsalva (nín thở rặn) is dangerous for hernia + high BP users.
+1. **Low-impact-core filter is non-negotiable.** Every exercise in `data/exercises.js` MUST declare `unsafeFor` if it raises intra-abdominal pressure. Plan generator filters these out for users with `CONDITION.CORE_EASY` / `CONDITION.CORE_MIN`. Naming describes the *restriction* (avoid high IAP), not any underlying cause — UI never names a disease.
+2. **Never add full sit-ups, V-ups, ab-wheel rollouts, deadlifts, heavy squats** to default plans. They're filtered out under low-impact-core.
+3. **TTS coaching cues must remind to breathe ("thở đều", "thở ra khi đẩy")** — Valsalva (nín thở rặn) raises intra-abdominal pressure and is filtered against. Keep advice generic — describe the technique, not a disease.
+4. **Storage migration:** legacy condition codes (`hernia-healed`, `hernia-acute`, `back-pain`, `knee-pain`, `high-bp`, `pregnancy`) auto-map to current ones via `CONDITION_MIGRATIONS` in `state.load()`. When replacing a flag, extend that map.
 
 ## Code rules (from user's global CLAUDE.md)
 
@@ -42,11 +44,21 @@ constants → storage / data → state → plan-generator
 - **Brief in-code docs only**, ≤ 200 words, plain English. No giant block comments.
 - **Update README.md + IMPLEMENTATION_PLAN.md** when shipping a feature.
 
-## Testing approach (when added)
+## Testing approach
 
-- Unit tests: `plan/generator.js` is the highest-value target — pure function, deterministic.
-- E2E: golden path with Playwright = onboarding → start session → finish 1 block → verify session record saved.
-- **Do not read test console output directly.** Dump to file, grep. Spawn agent to wait + analyze.
+Test pyramid in `tests/`:
+- `plan.test.mjs` — pure-function unit tests for plan generator + quick session.
+- `storage.test.mjs` — localStorage wrapper round-trip + prefix isolation.
+- `state.test.mjs` — setters, persistence, profile migration (legacy condition codes → current).
+- `session.test.mjs` — full state-machine integration via jsdom + node:test mock timers, stubbed Speech/Sound. Covers golden path, pause/resume, rep counter, swap, skip, multi-set+rest.
+- `views.smoke.test.mjs` — every view renders without throwing under a seeded state.
+- `_setup.mjs` — shared jsdom + Web Speech / Web Audio / Canvas stubs. Import this BEFORE any app module.
+
+Conventions:
+- Run via `npm test`. Each test must self-assert; never rely on visual inspection.
+- Add tests for every layer a feature touches (data → state → integration → view), including the happy path.
+- mock.timers.tick(N) with N > ~3000ms drops setInterval fires under Node's mock; use 100ms slices via the `advance()` helper in `session.test.mjs`.
+- **Do not read test console output directly.** Dump to file, grep. Spawn an agent to wait + analyze long runs.
 
 ## Common pitfalls
 
@@ -67,7 +79,10 @@ constants → storage / data → state → plan-generator
 ## Deploy commands
 
 ```bash
-npm run dev                        # local, port 5173
+npm run dev                        # local, port 5173 (npx serve)
 npm run lan                        # bind 0.0.0.0 for phone/TV testing
+npm test                           # node --test tests/*.mjs (currently: tests/plan.test.mjs)
 npm run deploy                     # Cloudflare Pages (needs wrangler login first)
 ```
+
+Single test run: `node --test tests/plan.test.mjs`. No bundler — `index.html` imports `js/app.js` directly via native ES modules.

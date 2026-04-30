@@ -65,7 +65,7 @@ function currentBlock() { return session.day.blocks[session.blockIdx]; }
 function currentExercise() { return getExercise(currentBlock().exerciseId); }
 
 function draw() {
-  if (!appRoot) return;
+  if (!appRoot || !session.day) return;
   const block = currentBlock();
   if (!block) return finish();
   const ex = currentExercise();

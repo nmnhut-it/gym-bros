@@ -16,7 +16,7 @@ export const SEED_PROFILE = Object.freeze({
   weightKg: 75,
   level: LEVEL.BEGINNER,
   goals: [GOAL.FAT_LOSS, GOAL.GENERAL_FITNESS],
-  conditions: [CONDITION.HERNIA_HEALED],
+  conditions: [CONDITION.CORE_EASY],
   equipment: [EQUIPMENT.TREADMILL, EQUIPMENT.TREADMILL_INCLINE, EQUIPMENT.SIT_UP_BENCH, EQUIPMENT.YOGA_MAT],
   daysPerWeek: 3,
   sessionMinutes: 45,

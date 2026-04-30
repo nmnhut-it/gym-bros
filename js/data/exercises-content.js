@@ -32,7 +32,7 @@ export const EXERCISE_CONTENT = Object.freeze({
       'Đưa tay/chân quá nhanh thay vì có kiểm soát.',
     ],
     benefits: 'Tăng cường ổn định cột sống thắt lưng và kích hoạt cơ lõi sâu mà không nén ép lưng — phù hợp cho người mới tập và phục hồi sau chấn thương.',
-    safetyNotes: 'An toàn cho người sau mổ thoát vị bẹn đã lành: thở đều, không nín hơi rặn. Nếu đau lưng dưới, giảm biên độ hạ chân hoặc co gối nhiều hơn.',
+    safetyNotes: 'An toàn ở chế độ tập nhẹ vùng bụng (low-impact): thở đều, không nín hơi rặn. Nếu lưng dưới căng, giảm biên độ hạ chân hoặc co gối nhiều hơn.',
     sources: [
       { url: 'https://www.acefitness.org/resources/everyone/exercise-library/147/supine-dead-bug/', name: 'ACE Fitness — Supine Dead Bug' },
       { url: 'https://www.acefitness.org/resources/everyone/blog/6313/7-core-stability-exercises/', name: 'ACE Fitness — 7 Core Stability Exercises' },
@@ -57,7 +57,7 @@ export const EXERCISE_CONTENT = Object.freeze({
       'Ngẩng cổ nhìn lên thay vì giữ cổ thẳng hàng cột sống.',
     ],
     benefits: 'Cải thiện ổn định cột sống thắt lưng và phối hợp tay/chân đối bên — giúp giảm đau lưng và phòng chấn thương.',
-    safetyNotes: 'Phù hợp với người sau hồi phục thoát vị bẹn vì áp lực ổ bụng thấp. Chỉ nâng chân tới mức giữ được lưng phẳng; thở đều.',
+    safetyNotes: 'Phù hợp chế độ tập nhẹ vùng bụng vì áp lực ổ bụng thấp. Chỉ nâng chân tới mức giữ được lưng phẳng; thở đều.',
     sources: [
       { url: 'https://www.acefitness.org/resources/everyone/exercise-library/14/bird-dog/', name: 'ACE Fitness — Bird Dog' },
       { url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8136566/', name: 'NIH/PMC — Lumbar Multifidus During Quadruped Exercises' },
@@ -81,7 +81,7 @@ export const EXERCISE_CONTENT = Object.freeze({
       'Chuyển động giật cục.',
     ],
     benefits: 'Giảm áp lực và căng cứng lưng dưới, kích hoạt nhẹ cơ bụng sâu — bài khởi động lý tưởng cho người đau lưng.',
-    safetyNotes: 'Rất an toàn cho người sau mổ thoát vị bẹn: cường độ thấp, không tạo áp lực ổ bụng. Nếu đau lưng giảm lực ép.',
+    safetyNotes: 'Rất an toàn ở chế độ tập nhẹ vùng bụng: cường độ thấp, không tạo áp lực ổ bụng. Nếu lưng căng, giảm lực ép.',
     sources: [
       { url: 'https://www.acefitness.org/resources/everyone/exercise-library/7/supine-pelvic-tilts/', name: 'ACE Fitness — Supine Pelvic Tilts' },
       { url: 'https://www.mayoclinic.org/healthy-lifestyle/labor-and-delivery/multimedia/pelvic-tilt-exercise/img-20006410', name: 'Mayo Clinic — Pelvic Tilt Exercise' },
@@ -106,7 +106,7 @@ export const EXERCISE_CONTENT = Object.freeze({
       'Nín hơi rặn khi nâng — phải thở ra khi nâng.',
     ],
     benefits: 'Tăng cường cơ mông và cơ duỗi hông, cải thiện tư thế và giảm tải cho lưng dưới.',
-    safetyNotes: 'An toàn sau hồi phục thoát vị bẹn: thở ra khi nâng, không nín hơi rặn. Nếu đau lưng giảm biên độ và siết bụng nhẹ trước khi nâng.',
+    safetyNotes: 'An toàn ở chế độ tập nhẹ vùng bụng: thở ra khi nâng, không nín hơi rặn. Nếu lưng căng, giảm biên độ và siết bụng nhẹ trước khi nâng.',
     sources: [
       { url: 'https://www.acefitness.org/resources/everyone/exercise-library/49/glute-bridge/', name: 'ACE Fitness — Glute Bridge' },
       { url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5534144/', name: 'NIH/PMC — Building a Better Gluteal Bridge (EMG)' },
@@ -130,7 +130,7 @@ export const EXERCISE_CONTENT = Object.freeze({
       'Nín hơi để giữ tư thế — phải thở đều.',
     ],
     benefits: 'Tăng sức mạnh cơ chéo bụng và ổn định bên thân với cường độ vừa phải — biến thể nhẹ phù hợp người mới tập.',
-    safetyNotes: 'Phiên bản chống đầu gối an toàn hơn cho người sau mổ thoát vị bẹn vì giảm tải ổ bụng. Thở đều; dừng nếu căng tức vùng bẹn.',
+    safetyNotes: 'Phiên bản chống đầu gối an toàn hơn ở chế độ tập nhẹ vùng bụng vì giảm tải ổ bụng. Thở đều; dừng nếu căng tức vùng bụng dưới.',
     sources: [
       { url: 'https://www.acefitness.org/resources/everyone/exercise-library/100/side-plank-modified/', name: 'ACE Fitness — Side Plank Modified' },
       { url: 'https://health.clevelandclinic.org/plank-exercise-benefits', name: 'Cleveland Clinic — Plank Exercise Benefits' },
@@ -153,7 +153,7 @@ export const EXERCISE_CONTENT = Object.freeze({
       'Đẩy vai lên gần tai thay vì giữ vai thả lỏng xa tai.',
     ],
     benefits: 'Tăng linh hoạt cột sống, giảm căng cứng lưng/cổ. Cải thiện tuần hoàn quanh đĩa đệm và làm dịu hệ thần kinh.',
-    safetyNotes: 'Người đau lưng cấp/thoát vị đĩa đệm/thoát vị bụng nên thực hiện biên độ nhỏ, thở đều, tránh nín thở.',
+    safetyNotes: 'Lưng nhạy cảm hoặc cần tập nhẹ vùng bụng — thực hiện biên độ nhỏ, thở đều, tránh nín thở.',
     sources: [
       { url: 'https://www.yogajournal.com/poses/cat-pose/', name: 'Yoga Journal — Cat Pose' },
       { url: 'https://www.yogajournal.com/poses/cow-pose/', name: 'Yoga Journal — Cow Pose' },
@@ -177,7 +177,7 @@ export const EXERCISE_CONTENT = Object.freeze({
       'Nín thở thay vì hít sâu.',
     ],
     benefits: 'Kéo giãn nhẹ lưng dưới, hông, đùi — giảm căng thẳng và mệt mỏi. Tư thế nghỉ phục hồi an toàn.',
-    safetyNotes: 'Người chấn thương đầu gối, mang thai, hoặc thoát vị nên mở rộng đầu gối + kê gối dưới bụng/ngực; tránh ép bụng.',
+    safetyNotes: 'Gối nhạy cảm hoặc cần tập nhẹ vùng bụng — mở rộng đầu gối + kê gối dưới bụng/ngực; tránh ép bụng.',
     sources: [
       { url: 'https://www.yogajournal.com/poses/child-s-pose/', name: "Yoga Journal — Child's Pose" },
       { url: 'https://www.nhs.uk/live-well/exercise/easy-low-impact-exercises/', name: 'NHS Live Well — Low Impact Exercises' },
@@ -200,7 +200,7 @@ export const EXERCISE_CONTENT = Object.freeze({
       'Cố vươn tới mức đau thay vì giữ ở mức căng vừa phải.',
     ],
     benefits: 'Tăng linh hoạt cơ đùi sau, giảm nguy cơ chấn thương. Cải thiện tư thế và giảm đau lưng dưới do hamstring căng.',
-    safetyNotes: 'Người đau lưng dưới/thoát vị đĩa đệm gập từ hông, lưng thẳng, không bật nẩy; thở đều.',
+    safetyNotes: 'Lưng nhạy cảm — gập từ hông, lưng thẳng, không bật nẩy; thở đều.',
     sources: [
       { url: 'https://www.mayoclinic.org/healthy-lifestyle/fitness/multimedia/stretching/sls-20076840', name: 'Mayo Clinic — Stretching Slideshow' },
       { url: 'https://www.acefitness.org/resources/everyone/exercise-library/171/seated-hamstring-stretch/', name: 'ACE Fitness — Seated Hamstring Stretch' },
@@ -224,7 +224,7 @@ export const EXERCISE_CONTENT = Object.freeze({
       'Thực hiện nhanh, không siết cơ mông để bảo vệ lưng.',
     ],
     benefits: 'Giảm căng cứng cơ hông trước do ngồi nhiều, cải thiện tư thế đứng. Hỗ trợ giảm đau lưng dưới.',
-    safetyNotes: 'Người đau lưng/thoát vị bẹn/thoát vị thành bụng đẩy hông NHẸ, siết mông để ổn định cột sống, tuyệt đối không nín thở.',
+    safetyNotes: 'Lưng nhạy cảm hoặc cần tập nhẹ vùng bụng — đẩy hông NHẸ, siết mông để ổn định cột sống, tuyệt đối không nín thở.',
     sources: [
       { url: 'https://www.acefitness.org/resources/everyone/exercise-library/26/kneeling-hip-flexor-stretch/', name: 'ACE Fitness — Kneeling Hip Flexor Stretch' },
       { url: 'https://my.clevelandclinic.org/health/articles/22356-hip-flexors', name: 'Cleveland Clinic — Hip Flexors' },
@@ -247,7 +247,7 @@ export const EXERCISE_CONTENT = Object.freeze({
       'Khóa khớp khuỷu quá mạnh.',
     ],
     benefits: 'Mở rộng vùng ngực và vai trước, đối kháng tư thế gù do ngồi máy tính lâu. Giảm đau cổ vai gáy.',
-    safetyNotes: 'Người đau vai/viêm chóp xoay/đông cứng vai giảm biên độ; không nín thở để tránh tăng áp lực ổ bụng.',
+    safetyNotes: 'Vai nhạy cảm — giảm biên độ; không nín thở để tránh tăng áp lực ổ bụng.',
     sources: [
       { url: 'https://www.mayoclinic.org/healthy-lifestyle/adult-health/multimedia/stretching/sls-20076525', name: 'Mayo Clinic — Stretching for Flexibility' },
       { url: 'https://www.acefitness.org/resources/everyone/exercise-library/178/clasp-hands-behind-back-stretch/', name: 'ACE Fitness — Clasp Hands Behind Back' },
@@ -272,7 +272,7 @@ export const EXERCISE_CONTENT = Object.freeze({
       'Nín thở khi gắng sức (rặn) thay vì thở đều.',
     ],
     benefits: 'Tăng sức mạnh và sức bền toàn bộ phần thân dưới, cải thiện thăng bằng, vận động hông và sự ổn định của cơ lõi cho người mới tập.',
-    safetyNotes: 'Sau mổ thoát vị bẹn: thở đều suốt động tác, tuyệt đối không nín thở rặn (Valsalva). Nếu đau gối, hạ nông hơn (chỉ tới ghế) và giữ đầu gối thẳng hàng mũi chân.',
+    safetyNotes: 'Tập nhẹ vùng bụng: thở đều suốt động tác, tuyệt đối không nín thở rặn (Valsalva). Gối nhạy cảm — hạ nông hơn (chỉ tới ghế) và giữ đầu gối thẳng hàng mũi chân.',
     sources: [
       { url: 'https://www.acefitness.org/resources/everyone/exercise-library/135/bodyweight-squat/', name: 'ACE Fitness — Bodyweight Squat' },
       { url: 'https://health.clevelandclinic.org/proper-squat-form', name: 'Cleveland Clinic — Proper Squat Form' },
@@ -297,7 +297,7 @@ export const EXERCISE_CONTENT = Object.freeze({
       'Mất thăng bằng do bước quá nhanh.',
     ],
     benefits: 'Tăng sức mạnh chân và mông từng bên cân bằng, nhẹ khớp gối hơn forward lunge, rèn luyện ổn định cơ lõi.',
-    safetyNotes: 'Sau mổ thoát vị bẹn: bước nhẹ, thở đều, không bước quá rộng. Nếu đau gối: giảm độ sâu, không để gối sau chạm sàn, bám nhẹ vào ghế/tường.',
+    safetyNotes: 'Tập nhẹ vùng bụng: bước nhẹ, thở đều, không bước quá rộng. Gối nhạy cảm: giảm độ sâu, không để gối sau chạm sàn, bám nhẹ vào ghế/tường.',
     sources: [
       { url: 'https://www.acefitness.org/resources/everyone/exercise-library/319/reverse-lunge/', name: 'ACE Fitness — Reverse Lunge' },
       { url: 'https://health.clevelandclinic.org/lunges-muscles-worked', name: 'Cleveland Clinic — Lunges: Form & Muscles' },
@@ -321,7 +321,7 @@ export const EXERCISE_CONTENT = Object.freeze({
       'Khóa cứng đầu gối khi nhón lên.',
     ],
     benefits: 'Tăng sức mạnh và sức bền cho bắp chân, hỗ trợ đi đứng + leo cầu thang + cải thiện thăng bằng cho mắt cá chân.',
-    safetyNotes: 'Sau mổ thoát vị bẹn: bài an toàn vì không tăng áp lực ổ bụng; nhớ thở đều. Nếu mất thăng bằng/đau gối, bám tường/ghế và giảm biên độ.',
+    safetyNotes: 'An toàn cho chế độ tập nhẹ vùng bụng vì không tăng áp lực ổ bụng; nhớ thở đều. Nếu mất thăng bằng / gối nhạy cảm, bám tường/ghế và giảm biên độ.',
     sources: [
       { url: 'https://www.acefitness.org/resources/everyone/exercise-library/73/standing-calf-raises-wall/', name: 'ACE Fitness — Standing Calf Raises (Wall)' },
       { url: 'https://www.nhs.uk/live-well/exercise/strength-exercises/', name: 'NHS Live Well — Strength Exercises' },
@@ -345,7 +345,7 @@ export const EXERCISE_CONTENT = Object.freeze({
       'Nín thở khi đẩy lên (rặn) thay vì thở ra đều.',
     ],
     benefits: 'Giúp người mới xây sức mạnh phần thân trên (ngực, vai, tay sau) và cơ lõi an toàn, dễ chỉnh độ khó bằng cách đổi độ cao bề mặt.',
-    safetyNotes: 'Sau mổ thoát vị bẹn: chọn bề mặt CAO (bàn bếp, tường) trong giai đoạn đầu để giảm áp lực bụng. Thở ra khi đẩy lên, tuyệt đối không rặn nín thở. Vai/khuỷu đau → nâng cao bề mặt thêm.',
+    safetyNotes: 'Tập nhẹ vùng bụng: chọn bề mặt CAO (bàn bếp, tường) trong giai đoạn đầu để giảm áp lực bụng. Thở ra khi đẩy lên, tuyệt đối không rặn nín thở. Vai/khuỷu căng → nâng cao bề mặt thêm.',
     sources: [
       { url: 'https://www.acefitness.org/resources/everyone/exercise-library/41/push-up/', name: 'ACE Fitness — Push-Up' },
       { url: 'https://health.clevelandclinic.org/how-to-do-a-push-up', name: 'Cleveland Clinic — How To Do a Push-up' },
@@ -370,7 +370,7 @@ export const EXERCISE_CONTENT = Object.freeze({
       'Bỏ khởi động/hạ nhiệt, dễ chóng mặt và đau cơ.',
     ],
     benefits: 'Đi bộ Zone 2 trên máy có dốc đốt mỡ hiệu quả vì cơ thể chủ yếu dùng mỡ làm nhiên liệu ở cường độ vừa phải. Cải thiện sức khỏe tim phổi, sức bền, ít rủi ro hơn HIIT. Mục tiêu: tốc độ ~5-6 km/h, dốc 3-8%, RPE 4-5/10.',
-    safetyNotes: 'Sau mổ thoát vị bẹn: đi bộ Zone 2 là lựa chọn lý tưởng vì áp lực ổ bụng thấp. Bắt đầu dốc 1-3% trong 2-4 tuần đầu rồi tăng dần. Đau gối: dốc ≤5%, mang giày đệm tốt, rút ngắn bước.',
+    safetyNotes: 'Tập nhẹ vùng bụng: đi bộ Zone 2 là lựa chọn lý tưởng vì áp lực ổ bụng thấp. Bắt đầu dốc 1-3% trong 2-4 tuần đầu rồi tăng dần. Gối nhạy cảm: dốc ≤5%, mang giày đệm tốt, rút ngắn bước.',
     sources: [
       { url: 'https://health.clevelandclinic.org/zone-2-cardio', name: 'Cleveland Clinic — What Is Zone 2 Cardio?' },
       { url: 'https://health.clevelandclinic.org/exercise-heart-rate-zones-explained', name: 'Cleveland Clinic — Heart Rate Zones' },
@@ -394,7 +394,7 @@ export const EXERCISE_CONTENT = Object.freeze({
       'Bỏ qua hạ nhiệt và đi giãn cơ ngay khi nhịp tim còn cao.',
     ],
     benefits: 'Giúp nhịp tim/huyết áp trở về mức nghỉ an toàn, giảm chóng mặt sau tập. Hỗ trợ thải lactate và bắt đầu hồi phục cơ.',
-    safetyNotes: 'Người tăng huyết áp/bệnh tim/thoát vị tránh dừng đột ngột và tránh nín thở; báo ngay nếu đau ngực, khó thở, choáng.',
+    safetyNotes: 'Tránh dừng đột ngột; tránh nín thở. Nếu thấy đau ngực, khó thở, choáng — dừng ngay và đi khám.',
     sources: [
       { url: 'https://www.heart.org/en/healthy-living/fitness/fitness-basics/warm-up-cool-down', name: 'American Heart Association — Warm Up, Cool Down' },
       { url: 'https://www.acefitness.org/resources/everyone/blog/6656/why-you-should-cool-down-after-your-workout/', name: 'ACE Fitness — Why You Should Cool Down' },

@@ -30,8 +30,8 @@ function disclaimerCard() {
       el('p', {}, [
         'Số rep, set, thời gian nghỉ trong app này là default common-knowledge ' +
         '(tham khảo cách tập phổ biến) — KHÔNG dựa trên nghiên cứu peer-reviewed ' +
-        'hay được chứng nhận bởi PT có giấy phép. Nguyên tắc lớn (tránh Valsalva ' +
-        'cho thoát vị, walking incline đốt mỡ, beginner cần volume thấp) thì có ' +
+        'hay được chứng nhận bởi PT có giấy phép. Nguyên tắc lớn (tránh Valsalva / ' +
+        'nín thở rặn, walking incline đốt mỡ, beginner cần volume thấp) thì có ' +
         'cơ sở. Test thử + lắng nghe cơ thể, đau là dừng.',
       ]),
     ]),

@@ -40,13 +40,38 @@ export const LEVEL = Object.freeze({
   ADVANCED: 'advanced',
 });
 
+/**
+ * Profile flags that constrain exercise selection. Names describe the
+ * RESTRICTION (what the program avoids), not the underlying cause.
+ *
+ *   CORE_EASY — avoid bài tăng áp lực ổ bụng (sit-up, V-up, deadlift, heavy squat,
+ *               nín thở rặn / Valsalva). Most beginners + recovery users.
+ *   CORE_MIN  — even stricter than CORE_EASY (no plank-lâu, no full pushup).
+ *   BACK_EASY — avoid heavy spinal loading.
+ *   KNEE_EASY — avoid deep knee flexion + impact (deep squat, jumping lunge).
+ *
+ * Adding a new flag: add the enum, declare which exercises are unsafe via
+ * `unsafeFor` in data/exercises.js, add an option in onboarding.
+ */
 export const CONDITION = Object.freeze({
-  HERNIA_HEALED: 'hernia-healed',
-  HERNIA_ACUTE: 'hernia-acute',
-  BACK_PAIN: 'back-pain',
-  KNEE_PAIN: 'knee-pain',
-  HIGH_BP: 'high-bp',
-  PREGNANCY: 'pregnancy',
+  CORE_EASY: 'core-easy',
+  CORE_MIN: 'core-min',
+  BACK_EASY: 'back-easy',
+  KNEE_EASY: 'knee-easy',
+});
+
+/**
+ * Legacy → current condition codes. Used by state.load() to migrate profiles
+ * persisted under older flag names without forcing the user to redo onboarding.
+ * Map to `null` to drop a code with no replacement.
+ */
+export const CONDITION_MIGRATIONS = Object.freeze({
+  'hernia-healed': 'core-easy',
+  'hernia-acute':  'core-min',
+  'back-pain':     'back-easy',
+  'knee-pain':     'knee-easy',
+  'high-bp':       'core-easy',
+  'pregnancy':     null,
 });
 
 export const EQUIPMENT = Object.freeze({

@@ -5,9 +5,28 @@
  * Write only via the setter functions — they auto-persist + emit a 'state:change' event.
  */
 
-import { DEFAULT_SETTINGS, STORAGE_KEYS, STORAGE_PREFIX } from './constants.js';
+import { CONDITION_MIGRATIONS, DEFAULT_SETTINGS, STORAGE_KEYS, STORAGE_PREFIX } from './constants.js';
 import { generatePlan } from './plan/generator.js';
 import * as Storage from './storage.js';
+
+/**
+ * Map legacy condition codes on a stored profile to current ones.
+ * Returns the same shape; safe to call with null/undefined.
+ */
+export function migrateProfile(p) {
+  if (!p || !Array.isArray(p.conditions)) return p;
+  const next = [];
+  for (const c of p.conditions) {
+    if (Object.prototype.hasOwnProperty.call(CONDITION_MIGRATIONS, c)) {
+      const mapped = CONDITION_MIGRATIONS[c];
+      if (mapped === null) continue;
+      next.push(mapped);
+    } else {
+      next.push(c);
+    }
+  }
+  return { ...p, conditions: [...new Set(next)] };
+}
 
 /** @type {EventTarget} */
 const bus = new EventTarget();
@@ -34,7 +53,7 @@ export const state = {
 
 /** Load everything from localStorage into memory. Call once at app boot. */
 export function load() {
-  state.profile  = Storage.load(STORAGE_KEYS.PROFILE, null);
+  state.profile  = migrateProfile(Storage.load(STORAGE_KEYS.PROFILE, null));
   state.plan     = Storage.load(STORAGE_KEYS.PLAN, null);
   state.sessions = Storage.load(STORAGE_KEYS.SESSIONS, []);
   state.weights  = Storage.load(STORAGE_KEYS.WEIGHTS, []);

@@ -2,17 +2,17 @@
 
 Web app tập gym tại nhà — chạy trên đt + smart TV, lưu localStorage, không cần backend.
 
-Tự lập lịch tuần dựa trên profile (giới tính, cân nặng, mục tiêu, bệnh nền, thiết bị có sẵn) — đặc biệt **an toàn cho người thoát vị bẹn** (filter các bài tăng áp lực ổ bụng).
+Tự lập lịch tuần dựa trên profile (giới tính, cân nặng, mục tiêu, lưu ý sức khoẻ, thiết bị có sẵn) — có **chế độ tập nhẹ vùng bụng (low-impact-core)** giữ áp lực ổ bụng thấp, phù hợp người mới tập / cần phục hồi.
 
 ## Tính năng
 
-- **Onboarding wizard** — 7 bước nhập profile + chọn mục tiêu/thiết bị/bệnh nền
+- **Onboarding wizard** — 7 bước nhập profile + chọn mục tiêu/thiết bị/lưu ý
 - **Plan generator** — tạo lịch 7 ngày tự động, scale theo trình độ
 - **Session player** — full-screen guided workout: TTS đếm rep tiếng Việt, chuông báo nghỉ, đếm ngược 3-2-1
 - **Weight tracker** — biểu đồ cân nặng (canvas, không thư viện)
 - **Lịch sử buổi tập** + streak ngày liên tiếp
 - **TV mode** — chữ to gấp 2 lần, cho m mở trên smart TV vừa tập vừa nhìn
-- **Bài tập an toàn cho thoát vị bẹn**: dead bug, bird dog, plank gối thay vì sit-up; squat/push-up bodyweight không tải nặng
+- **Low-impact-core mode**: dead bug, bird dog, plank gối thay vì sit-up; squat/push-up bodyweight không tải nặng; mọi cue nhắc thở đều, không nín thở rặn
 - **Offline-first** — sau lần load đầu, không cần mạng
 
 ## Chạy local
@@ -91,13 +91,13 @@ D:/gym-bros/
 
 ## An toàn — Disclaimer
 
-App này **không thay thế PT** hoặc lời khuyên y tế. Đặc biệt khi có thoát vị bẹn / đau lưng / huyết áp:
+App này **không thay thế PT** hoặc lời khuyên y tế. Khi có chấn thương / vấn đề sức khoẻ, hỏi bác sĩ trước.
 
-- App đã filter loại các bài tải nặng / nín thở rặn / bài bụng full crunch
-- Nhưng nếu m thấy đau, **dừng ngay**
-- Nếu chưa mổ thoát vị → khám bác sĩ trước khi tập
+- App filter loại các bài tải nặng / nín thở rặn / bụng full crunch dưới chế độ tập nhẹ vùng bụng
+- Đau là **dừng ngay**
+- Khi không chắc về tình trạng sức khoẻ → khám trước khi tập
 
-Bài an toàn cho thoát vị bẹn (đã hoặc chưa mổ) trong app: `dead-bug`, `bird-dog`, `pelvic-tilt`, `plank-knee`, `side-plank-knee`, `glute-bridge`, `cat-cow`, đi bộ.
+Bài thuộc nhóm low-impact-core: `dead-bug`, `bird-dog`, `pelvic-tilt`, `plank-knee`, `side-plank-knee`, `glute-bridge`, `cat-cow`, đi bộ.
 
 ## License
 

@@ -10,6 +10,15 @@
     "test": "node --test tests/*.mjs",
     "deploy": "npx --yes wrangler pages deploy . --project-name=gym-bros"
   },
-  "keywords": ["gym", "fitness", "workout", "spa", "vanilla-js"],
-  "license": "MIT"
+  "keywords": [
+    "gym",
+    "fitness",
+    "workout",
+    "spa",
+    "vanilla-js"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "jsdom": "^29.1.0"
+  }
 }

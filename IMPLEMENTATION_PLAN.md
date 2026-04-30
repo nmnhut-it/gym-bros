@@ -7,7 +7,7 @@ Sống tài liệu — cập nhật mỗi lần ship 1 milestone.
 ✅ **Phase 1: Local MVP** — DONE
 - Cấu trúc modular ES modules
 - Onboarding 7 bước
-- Plan generator với hernia-safe filter + level scaling + equipment fallback
+- Plan generator với low-impact-core filter + level scaling + equipment fallback
 - Exercise DB 25 bài (cardio, core, lower, upper, flexibility)
 - 4 day templates (cardio-core, strength-light, cardio-long, recovery)
 - 4 weekly schedules (3/4/5/6 days/week)
@@ -17,7 +17,7 @@ Sống tài liệu — cập nhật mỗi lần ship 1 milestone.
 - Progress: weight chart (vanilla canvas), session history
 - Settings: edit profile, replan, audio, TV mode, reset
 - TV mode: scale up font 2x
-- 14 unit tests (plan + quick session, hernia safety)
+- 60 tests across 5 layers (plan + quick session unit, storage round-trip, state setters + migration, session integration via jsdom + mock timers, view smoke)
 
 ✅ **JTBD coverage** (theo feedback 2026-04-29):
 - JTBD-1 today's plan ✅
@@ -95,8 +95,9 @@ Sống tài liệu — cập nhật mỗi lần ship 1 milestone.
 | 2026-04-29 | Hash routing thay History API | Chạy được từ file:// và subfolder không cần server config |
 | 2026-04-29 | Vietnamese-first UI | Target user là m + bạn người Việt; i18n later |
 | 2026-04-29 | Subdomain `gym.nmnhut.dev` thay path trên blog | Tách biệt với Hugo blog, deploy độc lập |
-| 2026-04-29 | Filter hernia-unsafe ở plan generator thay UI | Tránh user vô tình chọn bài nguy hiểm |
+| 2026-04-29 | Filter unsafe ở plan generator thay UI | Tránh user vô tình chọn bài không phù hợp |
 | 2026-04-29 | TTS đếm rep auto thay tap-to-count | User đang tập, tay không rảnh để tap đt |
-| 2026-04-30 | Nới `bw-squat` cho HERNIA_ACUTE (chỉ giữ KNEE_PAIN block) | BW squat biên độ vừa + thở đều an toàn pre-surgery; filter cũ chế quá tay. Cues mới nhấn "không xuống quá sâu", "thở ra khi đẩy lên". |
-| 2026-04-30 | Thêm `step-up-chair` + `split-squat-assisted` | Mở rộng pool LOWER hernia-safe — single-leg, low-impact, có support thăng bằng. |
+| 2026-04-30 | Nới `bw-squat` cho CORE_MIN (chỉ giữ KNEE_EASY block) | BW squat biên độ vừa + thở đều ổn ngay cả ở mức cẩn thận nhất; filter cũ chế quá tay. Cues mới nhấn "không xuống quá sâu", "thở ra khi đẩy lên". |
+| 2026-04-30 | Thêm `step-up-chair` + `split-squat-assisted` | Mở rộng pool LOWER low-impact-core — single-leg, low-impact, có support thăng bằng. |
+| 2026-04-30 | Đổi tên CONDITION.HERNIA_*/BACK_PAIN/KNEE_PAIN/HIGH_BP → CORE_EASY/CORE_MIN/BACK_EASY/KNEE_EASY | UI + content trung tính (không nêu tên bệnh) cho phiên bản đem bán. Giữ nguyên filter logic. Migration ở state.load() map giá trị cũ → mới. |
 | 2026-04-30 | Fix bug session.js không re-boot khi đổi adHocDay giữa 2 buổi | render() so sánh `state.adHocDay !== session.day` để re-boot. |
