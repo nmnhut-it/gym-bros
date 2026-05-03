@@ -1,167 +1,191 @@
 /**
- * Dashboard — main landing screen. Shows today's workout, quick stats, weight log.
+ * Dashboard — landing screen optimised around how the user actually trains:
+ * pick 1-2 favorite exercises ad-hoc rather than follow the weekly plan.
+ *
+ * Layout, mobile-first thumb zone:
+ *   1. compact header (name + streak chip)
+ *   2. "Tập tiếp" hero — last-run exercises, big start button (or empty hint)
+ *   3. "Yêu thích" — pinned exercise tiles, tap = launch session of that one bài
+ *   4. "Mix nhanh" — 30-min auto session + browse library
+ *   5. Plan hôm nay — 1-line collapsed row → tap opens full plan view
+ *   6. Cân nặng widget
  */
 
-import { ROUTES, WEEKDAY_LABEL_VI_LONG } from '../constants.js';
-import { state, recordWeight, setAdHocDay } from '../state.js';
+import { EXERCISE_TYPE, ROUTES } from '../constants.js';
+import {
+  getRecentExerciseIds, recordWeight, setAdHocDay,
+  startAdHocFromExerciseIds, state,
+} from '../state.js';
+import { findExercise } from '../data/exercises.js';
 import { getTodayDay, isRestDay } from '../plan/generator.js';
-import { generateQuickSession, FOCUS, focusLabel } from '../plan/quick.js';
+import { generateQuickSession, FOCUS } from '../plan/quick.js';
 import { navigate } from '../router.js';
-import { fmtDuration, todayISO } from '../ui/format.js';
+import { todayISO } from '../ui/format.js';
 import { button, card, el, mount } from '../ui/dom.js';
 import { navBar } from './_nav.js';
 
+const QUICK_DEFAULT_MINUTES = 30;
+const FAVORITE_TILES_LIMIT = 6;
+
+/** Emoji per exercise type — used on favorite/recent tiles. */
+const TYPE_EMOJI = Object.freeze({
+  [EXERCISE_TYPE.CARDIO]:      '🏃',
+  [EXERCISE_TYPE.CORE]:        '🔥',
+  [EXERCISE_TYPE.LOWER]:       '🦵',
+  [EXERCISE_TYPE.UPPER]:       '💪',
+  [EXERCISE_TYPE.FULL_BODY]:   '⚡',
+  [EXERCISE_TYPE.FLEXIBILITY]: '🧘',
+  [EXERCISE_TYPE.WARMUP]:      '🔥',
+  [EXERCISE_TYPE.COOLDOWN]:    '🌿',
+});
+
 export function render(root) {
   const profile = state.profile;
-  const day = getTodayDay(state.plan);
+  const today = getTodayDay(state.plan);
+  const recentIds = getRecentExerciseIds();
   mount(root,
     el('main.screen', {}, [
       header(profile.name),
-      todayCard(day),
-      quickActions(),
-      quickStats(),
+      continueCard(recentIds),
+      favoritesSection(state.favorites),
+      mixSection(),
+      todayPlanRow(today),
       weightWidget(),
     ]),
     navBar(ROUTES.DASHBOARD),
   );
 }
 
-function quickActions() {
-  return el('div.quick-actions', {}, [
-    el('button.quick-action', { onClick: openQuickSheet, type: 'button' }, [
-      el('span.qa-icon', {}, ['⚡']),
-      el('span.qa-label', {}, ['Tập nhanh']),
-      el('span.qa-desc', {}, ['Chọn nhóm cơ + thời lượng']),
-    ]),
-    el('button.quick-action', { onClick: () => navigate(ROUTES.BROWSE), type: 'button' }, [
-      el('span.qa-icon', {}, ['📋']),
-      el('span.qa-label', {}, ['Tự chọn bài']),
-      el('span.qa-desc', {}, ['Browse + tick từ thư viện']),
-    ]),
-  ]);
-}
-
-/** Module-scoped so re-renders preserve user choices. */
-const quickDraft = { focus: FOCUS.ALL, durationMin: 30 };
-let quickSheetEl = null;
-
-function openQuickSheet() {
-  if (quickSheetEl) quickSheetEl.remove();
-  quickSheetEl = buildQuickSheet();
-  document.body.appendChild(quickSheetEl);
-}
-
-function closeQuickSheet() {
-  if (quickSheetEl) { quickSheetEl.remove(); quickSheetEl = null; }
-}
-
-function buildQuickSheet() {
-  const root = el('div.sheet-backdrop', {});
-  root.addEventListener('click', (e) => { if (e.target === root) closeQuickSheet(); });
-  root.appendChild(el('div.sheet', {}, [
-    el('div.sheet-header', {}, [
-      el('h2', {}, ['Tập nhanh']),
-      el('button.icon-btn', { type: 'button', onClick: closeQuickSheet }, ['✕']),
-    ]),
-    el('p.muted', {}, ['App sẽ tự lên 1 buổi vừa với thời gian m có.']),
-    focusField(),
-    durationField(),
-    button('Bắt đầu 🔥', startQuickSession, { variant: 'primary', large: true, full: true }),
-  ]));
-  return root;
-}
-
-function focusField() {
-  const opts = [FOCUS.ALL, FOCUS.CARDIO, FOCUS.CORE, FOCUS.LOWER, FOCUS.UPPER, FOCUS.FLEXIBILITY];
-  return el('div.field', {}, [
-    el('span.field-label', {}, ['Tập trung vào']),
-    el('div.option-grid', {}, opts.map((f) =>
-      el(`button.option${quickDraft.focus === f ? '.selected' : ''}`,
-        { type: 'button', onClick: () => { quickDraft.focus = f; openQuickSheet(); } },
-        [el('div.option-label', {}, [focusLabel(f)])],
-      ),
-    )),
-  ]);
-}
-
-function durationField() {
-  const opts = [15, 20, 30, 45, 60];
-  return el('div.field', {}, [
-    el('span.field-label', {}, ['Thời lượng']),
-    el('div.option-grid', {}, opts.map((m) =>
-      el(`button.option${quickDraft.durationMin === m ? '.selected' : ''}`,
-        { type: 'button', onClick: () => { quickDraft.durationMin = m; openQuickSheet(); } },
-        [el('div.option-label', {}, [`${m} phút`])],
-      ),
-    )),
-  ]);
-}
-
-function startQuickSession() {
-  const day = generateQuickSession({
-    focus: quickDraft.focus,
-    durationMin: quickDraft.durationMin,
-    profile: state.profile,
-  });
-  setAdHocDay(day);
-  closeQuickSheet();
-  navigate(ROUTES.SESSION);
-}
+// ---------- header ----------
 
 function header(name) {
-  const hour = new Date().getHours();
-  const greet = hour < 11 ? 'Chào buổi sáng' : hour < 18 ? 'Chiều rồi' : 'Tối rồi';
-  return el('header.app-header', {}, [
-    el('div.greeting', {}, [`${greet},`]),
-    el('div.greeting-name', {}, [name || 'bro']),
-    el('div.date-label', {}, [WEEKDAY_LABEL_VI_LONG[new Date().getDay()] + ' · ' + new Date().toLocaleDateString('vi-VN')]),
+  const streak = computeStreak();
+  return el('header.app-header.dash-header', {}, [
+    el('div.dash-name', {}, [name || 'bro']),
+    streak > 0
+      ? el('div.streak-chip', {}, [el('span', {}, ['🔥']), el('span', {}, [`${streak} ngày`])])
+      : null,
   ]);
 }
 
-function todayCard(day) {
-  if (isRestDay(day)) {
-    return card(null,
-      el('div.today-card.rest', {}, [
-        el('div.today-icon', {}, ['😴']),
-        el('h2', {}, ['Hôm nay nghỉ']),
-        el('p.muted', {}, ['Cơ thể cần nghỉ để hồi phục. Ngủ sớm + uống đủ nước.']),
-        button('Vẫn muốn tập nhẹ?', () => navigate(ROUTES.PLAN), { variant: 'ghost' }),
-      ]),
-    );
-  }
+// ---------- continue (recent) hero ----------
+
+function continueCard(recentIds) {
+  if (recentIds.length === 0) return emptyContinueCard();
+  const first = findExercise(recentIds[0]);
+  if (!first) return emptyContinueCard();
+  const primaryIds = recentIds.slice(0, 2).filter((id) => findExercise(id));
   return card(null,
-    el('div.today-card', {}, [
-      el('div.today-icon', {}, [day.icon]),
-      el('div.today-meta', {}, [
-        el('div.eyebrow', {}, ['Hôm nay']),
-        el('h2', {}, [day.name]),
-        el('p.muted', {}, [day.summary]),
-        el('div.today-stats', {}, [
-          stat(`${day.blocks.length}`, 'bài'),
-          stat(`~${day.estimatedMinutes}`, 'phút'),
-        ]),
-      ]),
-      button('Bắt đầu tập 🔥', () => navigate(ROUTES.SESSION), { variant: 'primary', large: true, full: true }),
+    el('div.continue-card', {}, [
+      el('div.eyebrow', {}, ['Tập tiếp']),
+      el('h2.continue-title', {}, [first.name]),
+      primaryIds.length > 1
+        ? el('p.muted', {}, [`+ ${findExercise(primaryIds[1]).name}`])
+        : el('p.muted', {}, ['Chạy lại bài bạn vừa tập.']),
+      button('Bắt đầu 🔥', () => launchAdHoc(primaryIds), {
+        variant: 'primary', large: true, full: true,
+      }),
     ]),
   );
 }
 
-function quickStats() {
-  const weekSessions = sessionsThisWeek();
-  const streak = computeStreak();
-  return el('div.stat-grid', {}, [
-    statCard(`${streak}`, 'ngày streak 🔥'),
-    statCard(`${weekSessions}`, 'buổi tuần này'),
-    statCard(fmtDuration(totalMinThisWeek() * 60), 'tổng tuần'),
+function emptyContinueCard() {
+  return card(null,
+    el('div.continue-card.empty', {}, [
+      el('div.continue-emoji', {}, ['💪']),
+      el('h2', {}, ['Sẵn sàng tập?']),
+      el('p.muted', {}, ['Chọn 1 bài từ thư viện để khởi đầu.']),
+      button('Mở thư viện 📋', () => navigate(ROUTES.BROWSE), {
+        variant: 'primary', large: true, full: true,
+      }),
+    ]),
+  );
+}
+
+// ---------- favorites ----------
+
+function favoritesSection(favorites) {
+  const valid = favorites.map(findExercise).filter(Boolean).slice(0, FAVORITE_TILES_LIMIT);
+  if (valid.length === 0) return favoritesEmpty();
+  return el('section.fav-section', {}, [
+    el('div.fav-head', {}, [
+      el('h2.card-title', {}, ['Yêu thích ⭐']),
+      el('button.fav-edit', {
+        type: 'button', onClick: () => navigate(ROUTES.BROWSE),
+      }, ['+ thêm']),
+    ]),
+    el('div.fav-grid', {}, valid.map(favoriteTile)),
   ]);
 }
 
-function statCard(num, label) {
-  return el('div.stat-card', {}, [el('div.stat-num', {}, [num]), el('div.stat-label', {}, [label])]);
+function favoritesEmpty() {
+  return el('section.fav-section.empty', {}, [
+    el('h2.card-title', {}, ['Yêu thích ⭐']),
+    el('p.muted', {}, ['Vào thư viện rồi pin bài bạn hay tập — để bấm 1 phát là chạy luôn.']),
+  ]);
 }
-function stat(num, label) {
-  return el('div.stat', {}, [el('span.stat-num-inline', {}, [num]), el('span.stat-label-inline', {}, [label])]);
+
+function favoriteTile(ex) {
+  return el('button.fav-tile', {
+    type: 'button',
+    onClick: () => launchAdHoc([ex.id]),
+  }, [
+    el('span.fav-emoji', {}, [TYPE_EMOJI[ex.type] ?? '⚡']),
+    el('span.fav-name', {}, [ex.name]),
+  ]);
 }
+
+// ---------- mix nhanh ----------
+
+function mixSection() {
+  return el('div.mix-row', {}, [
+    el('button.mix-tile', { type: 'button', onClick: launchQuickAuto }, [
+      el('span.mix-emoji', {}, ['⚡']),
+      el('span.mix-label', {}, [`Tập ${QUICK_DEFAULT_MINUTES} phút`]),
+      el('span.mix-desc', {}, ['Auto pick toàn thân']),
+    ]),
+    el('button.mix-tile', { type: 'button', onClick: () => navigate(ROUTES.BROWSE) }, [
+      el('span.mix-emoji', {}, ['📋']),
+      el('span.mix-label', {}, ['Chọn bài']),
+      el('span.mix-desc', {}, ['Browse thư viện']),
+    ]),
+  ]);
+}
+
+function launchQuickAuto() {
+  const day = generateQuickSession({
+    focus: FOCUS.ALL,
+    durationMin: QUICK_DEFAULT_MINUTES,
+    profile: state.profile,
+  });
+  setAdHocDay(day);
+  navigate(ROUTES.SESSION);
+}
+
+// ---------- plan today (collapsed) ----------
+
+function todayPlanRow(day) {
+  if (isRestDay(day)) {
+    return el('button.plan-row.rest', { type: 'button', onClick: () => navigate(ROUTES.PLAN) }, [
+      el('span.plan-row-icon', {}, ['😴']),
+      el('span.plan-row-text', {}, [
+        el('span.plan-row-title', {}, ['Hôm nay nghỉ']),
+        el('span.plan-row-meta', {}, ['Plan của tuần · xem chi tiết']),
+      ]),
+      el('span.plan-row-arrow', {}, ['›']),
+    ]);
+  }
+  return el('button.plan-row', { type: 'button', onClick: () => navigate(ROUTES.PLAN) }, [
+    el('span.plan-row-icon', {}, [day.icon]),
+    el('span.plan-row-text', {}, [
+      el('span.plan-row-title', {}, [`Hôm nay: ${day.name}`]),
+      el('span.plan-row-meta', {}, [`${day.blocks.length} bài · ~${day.estimatedMinutes} phút`]),
+    ]),
+    el('span.plan-row-arrow', {}, ['›']),
+  ]);
+}
+
+// ---------- weight widget ----------
 
 function weightWidget() {
   const latest = state.weights[0];
@@ -177,34 +201,32 @@ function weightWidget() {
           oninput: (e) => { val = Number(e.target.value); },
         }),
         el('span.weight-unit', {}, ['kg']),
-        button(isToday ? 'Cập nhật' : 'Lưu', () => { recordWeight(val); render(document.getElementById('app')); }, { variant: 'secondary' }),
+        button(isToday ? 'Cập nhật' : 'Lưu',
+          () => { recordWeight(val); render(document.getElementById('app')); },
+          { variant: 'secondary' }),
       ]),
-      latest ? el('div.muted', {}, [`Lần cuối: ${latest.date} — ${latest.kg}kg`]) : el('div.muted', {}, ['Chưa có dữ liệu']),
+      latest
+        ? el('div.muted', {}, [`Lần cuối: ${latest.date} — ${latest.kg}kg`])
+        : el('div.muted', {}, ['Chưa có dữ liệu']),
     ]),
   );
 }
 
-// ---------- stats helpers ----------
+// ---------- ad-hoc launch ----------
 
-function sessionsThisWeek() {
-  const start = startOfWeek();
-  return state.sessions.filter((s) => s.date >= start).length;
+function launchAdHoc(exerciseIds) {
+  const ok = startAdHocFromExerciseIds(exerciseIds);
+  if (!ok) {
+    // Every ID was filtered out as unsafe for the current profile — fall
+    // back to browse so the user can pick something else rather than
+    // getting silently stuck.
+    navigate(ROUTES.BROWSE);
+    return;
+  }
+  navigate(ROUTES.SESSION);
 }
 
-function totalMinThisWeek() {
-  const start = startOfWeek();
-  return state.sessions
-    .filter((s) => s.date >= start)
-    .reduce((sum, s) => sum + Math.round(s.durationSec / 60), 0);
-}
-
-function startOfWeek() {
-  const d = new Date();
-  const dow = d.getDay();
-  const offset = (dow + 6) % 7;  // Monday = 0
-  d.setDate(d.getDate() - offset);
-  return d.toISOString().slice(0, 10);
-}
+// ---------- streak helper ----------
 
 function computeStreak() {
   if (state.sessions.length === 0) return 0;
@@ -214,7 +236,6 @@ function computeStreak() {
   while (true) {
     const iso = cursor.toISOString().slice(0, 10);
     if (dates.has(iso)) { streak++; cursor.setDate(cursor.getDate() - 1); continue; }
-    // allow skipping today if not yet trained
     if (streak === 0 && iso === todayISO()) { cursor.setDate(cursor.getDate() - 1); continue; }
     break;
   }

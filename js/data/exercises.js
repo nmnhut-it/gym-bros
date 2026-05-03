@@ -267,3 +267,14 @@ export function getExercise(id) {
   if (!ex) throw new Error(`Unknown exercise id: ${id}`);
   return ex;
 }
+
+/**
+ * Non-throwing variant of getExercise. Returns undefined for unknown ids —
+ * used when reading from user data (favorites, recents) where ids may be
+ * stale from an older app version.
+ * @param {string} id
+ * @returns {object|undefined}
+ */
+export function findExercise(id) {
+  return EXERCISES[id];
+}

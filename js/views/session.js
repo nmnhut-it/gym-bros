@@ -11,7 +11,7 @@
  */
 
 import { DEFAULT_REST_SECONDS, ROUTES, TICK_MS } from '../constants.js';
-import { state, recordSession, setAdHocDay } from '../state.js';
+import { isFavorite, state, recordSession, setAdHocDay, toggleFavorite } from '../state.js';
 import { getTodayDay } from '../plan/generator.js';
 import { navigate } from '../router.js';
 import { fmtTime } from '../ui/format.js';
@@ -104,13 +104,31 @@ function activeView(block, ex) {
   const isIntro = session.phase === 'intro';
   return el('div.session-main', {}, [
     el('div.anim-stage', {}, [makeAnimation(ex.id)]),
-    el('h1.exercise-title', {}, [ex.name]),
+    el('div.exercise-title-row', {}, [
+      el('h1.exercise-title', {}, [ex.name]),
+      sessionStarButton(ex.id),
+    ]),
     el('div.exercise-meta', {}, [setLabel]),
     bigDisplay(block, ex),
     el('p.exercise-instructions', {}, [ex.instructions]),
     el('div.cue-row', {}, ex.cues.map((c) => el('span.cue-pill', {}, [c]))),
     isIntro ? el('button.btn.ghost.tutorial-btn', { type: 'button', onClick: () => openTutorial(ex) }, ['📖 Hướng dẫn chi tiết']) : null,
   ]);
+}
+
+/**
+ * Pin/unpin the current exercise from inside the session player. Re-draws
+ * after toggle so the star fills/empties immediately.
+ * @param {string} exerciseId
+ */
+function sessionStarButton(exerciseId) {
+  const on = isFavorite(exerciseId);
+  return el(`button.icon-btn.star-btn${on ? '.is-on' : ''}`, {
+    type: 'button',
+    title: on ? 'Bỏ yêu thích' : 'Yêu thích',
+    'aria-pressed': on ? 'true' : 'false',
+    onClick: () => { toggleFavorite(exerciseId); draw(); },
+  }, [on ? '★' : '☆']);
 }
 
 function bigDisplay(block, ex) {
@@ -305,6 +323,7 @@ function finish() {
     durationSec: Math.round((Date.now() - session.startedAt) / 1000),
     blocksDone: session.blocksCompleted,
     totalBlocks: session.day.blocks.length,
+    exerciseIds: [...new Set(session.day.blocks.map((b) => b.exerciseId))],
   });
   setAdHocDay(null);
   showFinishCard();

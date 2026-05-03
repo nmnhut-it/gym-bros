@@ -13,7 +13,11 @@ export const STORAGE_KEYS = Object.freeze({
   WEIGHTS: `${STORAGE_PREFIX}:weights`,
   SETTINGS: `${STORAGE_PREFIX}:settings`,
   CURRENT_SESSION: `${STORAGE_PREFIX}:currentSession`,
+  FAVORITES: `${STORAGE_PREFIX}:favorites`,
 });
+
+/** Max number of distinct exerciseIds returned by getRecentExerciseIds. */
+export const RECENT_EXERCISES_LIMIT = 6;
 
 export const ROUTES = Object.freeze({
   ONBOARDING: '#/onboarding',

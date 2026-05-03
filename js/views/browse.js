@@ -14,7 +14,7 @@
  */
 
 import { EXERCISE_TYPE, ROUTES } from '../constants.js';
-import { state, setAdHocDay } from '../state.js';
+import { isFavorite, state, setAdHocDay, toggleFavorite } from '../state.js';
 import { EXERCISES } from '../data/exercises.js';
 import { makeAnimation } from '../data/animations.js';
 import { buildCustomDay } from '../plan/builder.js';
@@ -98,6 +98,7 @@ function itemRow(ex) {
       noEquip ? el('span.tag.tag-muted', {}, ['Thiếu thiết bị']) : null,
     ]),
     el('div.browse-action', {}, [
+      starButton(ex.id),
       el('button.icon-btn.tutorial-icon', {
         type: 'button', title: 'Hướng dẫn',
         onClick: (e) => { e.stopPropagation(); openTutorial(ex); },
@@ -105,6 +106,21 @@ function itemRow(ex) {
       el(`span.cart-check${inCart ? '.is-on' : ''}`, {}, [inCart ? '✓' : '+']),
     ]),
   ]);
+}
+
+/**
+ * Star pin button. Stops click propagation so the surrounding row's "add to
+ * cart" handler doesn't fire — pinning and selecting are independent actions.
+ * @param {string} exerciseId
+ */
+function starButton(exerciseId) {
+  const on = isFavorite(exerciseId);
+  return el(`button.icon-btn.star-btn${on ? '.is-on' : ''}`, {
+    type: 'button',
+    title: on ? 'Bỏ yêu thích' : 'Yêu thích',
+    'aria-pressed': on ? 'true' : 'false',
+    onClick: (e) => { e.stopPropagation(); toggleFavorite(exerciseId); redraw(); },
+  }, [on ? '★' : '☆']);
 }
 
 function defaultMeta(ex) {

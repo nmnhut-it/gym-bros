@@ -12,12 +12,13 @@ Sống tài liệu — cập nhật mỗi lần ship 1 milestone.
 - 4 day templates (cardio-core, strength-light, cardio-long, recovery)
 - 4 weekly schedules (3/4/5/6 days/week)
 - Session player: state machine intro → active → rest → next, TTS đếm rep VI, chuông + beep, countdown 3-2-1
-- Dashboard: today card, streak, weekly stats, quick weight log, **Tập nhanh** + **Tự chọn bài** entry
+- Dashboard "favorites-first" reorg (2026-04-30): hero "Tập tiếp" surfaces last-run exercise, ⭐ favorites tile row tap-to-launch, "Mix nhanh" 30-min auto + browse, weekly plan thu lại 1 dòng. Nguồn: feedback_ux Lesson 6 — user không tập theo plan, chỉ pick 1-2 bài thích.
 - Plan view: 7 ngày breakdown
 - Progress: weight chart (vanilla canvas), session history
 - Settings: edit profile, replan, audio, TV mode, reset
 - TV mode: scale up font 2x
-- 80 tests across 6 layers (plan + quick session unit, storage round-trip, state setters + migration, session integration via jsdom + mock timers, view smoke, PWA contract)
+- 103 tests across 6 layers (plan + quick session unit, storage round-trip, state setters + migration + favorites + recents + safety filter, session integration via jsdom + mock timers, view smoke incl. dashboard variants + browse/session star pin, PWA contract)
+- ⭐ pin button trên browse + session — tap star = toggle favorites (e.stopPropagation tách khỏi cart toggle), filled khi pinned. Lúc tập user spot bài thích → pin từ session header → lần sau lên dashboard tap 1 phát chạy lại.
 
 ✅ **JTBD coverage** (theo feedback 2026-04-29):
 - JTBD-1 today's plan ✅

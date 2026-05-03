@@ -20,12 +20,12 @@ constants → storage / data → state → plan-generator
 
 - `js/constants.js` — every enum + every magic number lives here. **Don't hardcode strings/numbers in other files.**
 - `js/storage.js` — only file that touches `localStorage`. Swap this to migrate storage backends.
-- `js/state.js` — single global state object + setters that auto-persist + emit `state:change`. `migrateProfile()` runs on load to map legacy condition codes.
+- `js/state.js` — single global state object + setters that auto-persist + emit `state:change`. `migrateProfile()` runs on load to map legacy condition codes. Owns favorites (`toggleFavorite`, `isFavorite`), recent-exercise lookup (`getRecentExerciseIds`), and ad-hoc launch (`startAdHocFromExerciseIds` — passes IDs through `filterSafeExerciseIds` first so unsafe pinned moves can never reach the session player).
 - `js/pwa/install.js` — registers `sw.js` + captures `beforeinstallprompt`. Settings shows the install card.
 - `js/wake-lock.js` — acquired in `session.startSet`, released in `finish` / `confirmExit`. Auto re-acquires on visibility change.
 - `manifest.json` + `sw.js` + `icons/*.svg` live at site root so SW scope is `/` and the manifest is reachable from any subpath.
 - `js/bootstrap.js` — temporary `SEED_PROFILE` for v0.1 personal use; removed once onboarding redesign ships (Phase A in IMPLEMENTATION_PLAN.md).
-- `js/data/` — `exercises.js` (database), `templates.js` (day templates), `exercises-content.js` (long-form how-to text), `photos.js` + `animations.js` (visual assets). Adding new exercises = ONLY edit `exercises.js`.
+- `js/data/` — `exercises.js` (database), `templates.js` (day templates), `exercises-content.js` (long-form how-to text), `photos.js` + `animations.js` (visual assets). Adding new exercises = ONLY edit `exercises.js`. Lookup helpers: **`getExercise(id)` throws** for unknown ids — only safe when the id comes from internal sources (templates, plan blocks). For ids from user data (favorites, recents, stale storage), use **`findExercise(id)` which returns `undefined`**.
 - `js/plan/` — three **PURE FUNCTIONS**, no state mutation: `generator.js` `(profile)→weekly plan`, `quick.js` `(focus, level)→single ad-hoc session`, `builder.js` `(picked exercises)→runnable day`. Quick + builder share level-scaling logic.
 - `js/audio/` — TTS (`speech.js`) + Web Audio (`sound.js`). Don't import elsewhere except views.
 - `js/ui/dom.js` — `el()`, `button()`, `card()`, `icon()`. Use these instead of raw DOM API. Companions: `format.js` (số/thời gian), `tutorial.js` (how-to sheets).
@@ -34,7 +34,7 @@ constants → storage / data → state → plan-generator
 
 ## Critical safety rules (DO NOT BREAK)
 
-1. **Low-impact-core filter is non-negotiable.** Every exercise in `data/exercises.js` MUST declare `unsafeFor` if it raises intra-abdominal pressure. Plan generator filters these out for users with `CONDITION.CORE_EASY` / `CONDITION.CORE_MIN`. Naming describes the *restriction* (avoid high IAP), not any underlying cause — UI never names a disease.
+1. **Low-impact-core filter is non-negotiable.** Every exercise in `data/exercises.js` MUST declare `unsafeFor` if it raises intra-abdominal pressure. Plan generator AND `state.startAdHocFromExerciseIds` (favorites/recents launch path) BOTH apply the filter — even a user-pinned exercise is dropped if it became unsafe after a profile change. Naming describes the *restriction* (avoid high IAP), not any underlying cause — UI never names a disease.
 2. **Never add full sit-ups, V-ups, ab-wheel rollouts, deadlifts, heavy squats** to default plans. They're filtered out under low-impact-core.
 3. **TTS coaching cues must remind to breathe ("thở đều", "thở ra khi đẩy")** — Valsalva (nín thở rặn) raises intra-abdominal pressure and is filtered against. Keep advice generic — describe the technique, not a disease.
 4. **Storage migration:** legacy condition codes (`hernia-healed`, `hernia-acute`, `back-pain`, `knee-pain`, `high-bp`, `pregnancy`) auto-map to current ones via `CONDITION_MIGRATIONS` in `state.load()`. When replacing a flag, extend that map.

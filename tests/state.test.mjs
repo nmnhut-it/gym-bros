@@ -16,6 +16,8 @@ import { resetMocks } from './_setup.mjs';
 import {
   state, load, migrateProfile, setProfile, recordSession, recordWeight,
   setAdHocDay, setSettings, resetAll, isOnboarded,
+  toggleFavorite, isFavorite, getRecentExerciseIds,
+  filterSafeExerciseIds, startAdHocFromExerciseIds,
 } from '../js/state.js';
 import { CONDITION, DEFAULT_SETTINGS, STORAGE_KEYS } from '../js/constants.js';
 
@@ -33,6 +35,7 @@ function freshState() {
   state.weights = [];
   state.settings = { ...DEFAULT_SETTINGS };
   state.adHocDay = null;
+  state.favorites = [];
 }
 
 beforeEach(freshState);
@@ -160,6 +163,145 @@ describe('setSettings', () => {
     assert.equal(state.settings.voiceEnabled, true);  // preserved default
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEYS.SETTINGS));
     assert.equal(raw.tvMode, true);
+  });
+});
+
+describe('toggleFavorite + isFavorite', () => {
+  it('adds a fresh id to the front of the list', () => {
+    toggleFavorite('dead-bug');
+    toggleFavorite('glute-bridge');
+    assert.deepEqual(state.favorites, ['glute-bridge', 'dead-bug']);
+    assert.equal(isFavorite('dead-bug'), true);
+    assert.equal(isFavorite('knee-pushup'), false);
+  });
+
+  it('removes when toggled twice', () => {
+    toggleFavorite('dead-bug');
+    toggleFavorite('dead-bug');
+    assert.deepEqual(state.favorites, []);
+    assert.equal(isFavorite('dead-bug'), false);
+  });
+
+  it('persists to localStorage under STORAGE_KEYS.FAVORITES', () => {
+    toggleFavorite('dead-bug');
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEYS.FAVORITES));
+    assert.deepEqual(raw, ['dead-bug']);
+  });
+
+  it('survives load() round-trip', () => {
+    localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(['a', 'b', 'c']));
+    load();
+    assert.deepEqual(state.favorites, ['a', 'b', 'c']);
+  });
+
+  it('ignores empty/null id (no crash, no insert)', () => {
+    toggleFavorite('');
+    toggleFavorite(null);
+    assert.deepEqual(state.favorites, []);
+  });
+});
+
+describe('getRecentExerciseIds', () => {
+  it('returns [] when no sessions logged', () => {
+    assert.deepEqual(getRecentExerciseIds(), []);
+  });
+
+  it('flattens session.exerciseIds newest-first and dedupes', () => {
+    state.sessions = [
+      { date: '2026-04-30', exerciseIds: ['dead-bug', 'glute-bridge'] },
+      { date: '2026-04-29', exerciseIds: ['glute-bridge', 'knee-pushup'] },
+      { date: '2026-04-28', exerciseIds: ['cat-cow'] },
+    ];
+    assert.deepEqual(
+      getRecentExerciseIds(),
+      ['dead-bug', 'glute-bridge', 'knee-pushup', 'cat-cow'],
+    );
+  });
+
+  it('respects the limit argument', () => {
+    state.sessions = [
+      { date: '2026-04-30', exerciseIds: ['a', 'b', 'c', 'd', 'e', 'f'] },
+    ];
+    assert.deepEqual(getRecentExerciseIds(3), ['a', 'b', 'c']);
+  });
+
+  it('skips sessions without exerciseIds (backward compat)', () => {
+    state.sessions = [
+      { date: '2026-04-30' /* legacy record, no exerciseIds */ },
+      { date: '2026-04-29', exerciseIds: ['dead-bug'] },
+    ];
+    assert.deepEqual(getRecentExerciseIds(), ['dead-bug']);
+  });
+
+  it('recordSession persists exerciseIds when caller provides them', () => {
+    recordSession({
+      date: '2026-04-30', dayType: 'cardio-core', durationSec: 1200,
+      blocksDone: 3, totalBlocks: 3, exerciseIds: ['dead-bug', 'glute-bridge'],
+    });
+    assert.deepEqual(getRecentExerciseIds(), ['dead-bug', 'glute-bridge']);
+  });
+});
+
+/** Profile with CORE_MIN — the strictest core flag — so that exercises
+ *  whose unsafeFor includes CORE_MIN (knee-pushup, incline-pushup, plank, ...)
+ *  are dropped by the filter. Used for the safety-filter tests. */
+const STRICT_PROFILE = Object.freeze({
+  ...BASE_PROFILE, conditions: [CONDITION.CORE_MIN],
+});
+
+describe('filterSafeExerciseIds', () => {
+  it('returns [] when no profile loaded', () => {
+    assert.deepEqual(filterSafeExerciseIds(['dead-bug']), []);
+  });
+
+  it('keeps exercises whose unsafeFor does not match profile conditions', () => {
+    setProfile(STRICT_PROFILE);
+    const out = filterSafeExerciseIds(['dead-bug', 'walk-warmup']);
+    assert.ok(out.includes('walk-warmup'));
+    assert.ok(out.includes('dead-bug'));
+  });
+
+  it('drops unsafe ids — knee-pushup is unsafeFor CORE_MIN in the data layer', () => {
+    setProfile(STRICT_PROFILE);
+    const out = filterSafeExerciseIds(['knee-pushup', 'dead-bug']);
+    assert.ok(!out.includes('knee-pushup'),
+      'knee-pushup should be filtered out under CORE_MIN');
+    assert.ok(out.includes('dead-bug'));
+  });
+
+  it('drops unknown ids (defensive)', () => {
+    setProfile(BASE_PROFILE);
+    assert.deepEqual(filterSafeExerciseIds(['nope-not-a-real-id']), []);
+  });
+});
+
+describe('startAdHocFromExerciseIds', () => {
+  it('returns false when no profile', () => {
+    assert.equal(startAdHocFromExerciseIds(['dead-bug']), false);
+    assert.equal(state.adHocDay, null);
+  });
+
+  it('returns false when ids list is empty', () => {
+    setProfile(BASE_PROFILE);
+    assert.equal(startAdHocFromExerciseIds([]), false);
+    assert.equal(state.adHocDay, null);
+  });
+
+  it('returns false when every id is filtered out as unsafe', () => {
+    setProfile(STRICT_PROFILE);
+    assert.equal(startAdHocFromExerciseIds(['knee-pushup']), false);
+    assert.equal(state.adHocDay, null);
+  });
+
+  it('stages a custom day in state.adHocDay when at least one id is safe', () => {
+    setProfile(BASE_PROFILE);
+    const ok = startAdHocFromExerciseIds(['dead-bug']);
+    assert.equal(ok, true);
+    assert.ok(state.adHocDay);
+    assert.ok(state.adHocDay.blocks.length > 0);
+    // Block list should include warmup + the picked exercise + cooldown.
+    const ids = state.adHocDay.blocks.map((b) => b.exerciseId);
+    assert.ok(ids.includes('dead-bug'));
   });
 });
 

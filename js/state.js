@@ -5,7 +5,12 @@
  * Write only via the setter functions — they auto-persist + emit a 'state:change' event.
  */
 
-import { CONDITION_MIGRATIONS, DEFAULT_SETTINGS, STORAGE_KEYS, STORAGE_PREFIX } from './constants.js';
+import {
+  CONDITION_MIGRATIONS, DEFAULT_SETTINGS, RECENT_EXERCISES_LIMIT,
+  STORAGE_KEYS, STORAGE_PREFIX,
+} from './constants.js';
+import { findExercise } from './data/exercises.js';
+import { buildCustomDay } from './plan/builder.js';
 import { generatePlan } from './plan/generator.js';
 import * as Storage from './storage.js';
 
@@ -49,6 +54,12 @@ export const state = {
    * @type {import('./plan/generator.js').PlanDay | null}
    */
   adHocDay: null,
+  /**
+   * Pinned exerciseIds the user wants 1-tap access to from the dashboard.
+   * Order = pin order (first pinned shows first).
+   * @type {string[]}
+   */
+  favorites: [],
 };
 
 /** Load everything from localStorage into memory. Call once at app boot. */
@@ -58,6 +69,7 @@ export function load() {
   state.sessions = Storage.load(STORAGE_KEYS.SESSIONS, []);
   state.weights  = Storage.load(STORAGE_KEYS.WEIGHTS, []);
   state.settings = { ...DEFAULT_SETTINGS, ...Storage.load(STORAGE_KEYS.SETTINGS, {}) };
+  state.favorites = Storage.load(STORAGE_KEYS.FAVORITES, []);
 }
 
 /** @param {(e: Event) => void} fn */
@@ -120,7 +132,86 @@ export function resetAll() {
   state.sessions = [];
   state.weights = [];
   state.settings = { ...DEFAULT_SETTINGS };
+  state.favorites = [];
   emit('reset');
+}
+
+/**
+ * Toggle pin/unpin of an exerciseId in favorites. New pins go to the front.
+ * @param {string} exerciseId
+ */
+export function toggleFavorite(exerciseId) {
+  if (!exerciseId) return;
+  const i = state.favorites.indexOf(exerciseId);
+  state.favorites = i >= 0
+    ? state.favorites.filter((id) => id !== exerciseId)
+    : [exerciseId, ...state.favorites];
+  Storage.save(STORAGE_KEYS.FAVORITES, state.favorites);
+  emit('favorites');
+}
+
+/** @param {string} exerciseId */
+export function isFavorite(exerciseId) {
+  return state.favorites.includes(exerciseId);
+}
+
+/**
+ * Distinct exerciseIds the user has run recently — most recent first.
+ * Reads from session history; sessions without exerciseIds are skipped silently
+ * (backward compat for records written before that field existed).
+ * @param {number} [limit]
+ * @returns {string[]}
+ */
+export function getRecentExerciseIds(limit = RECENT_EXERCISES_LIMIT) {
+  const seen = new Set();
+  const out = [];
+  for (const s of state.sessions) {
+    if (!Array.isArray(s.exerciseIds)) continue;
+    for (const id of s.exerciseIds) {
+      if (seen.has(id)) continue;
+      seen.add(id);
+      out.push(id);
+      if (out.length >= limit) return out;
+    }
+  }
+  return out;
+}
+
+/**
+ * Drop exerciseIds whose `unsafeFor` intersects the profile's conditions.
+ * This is a hard floor: even if the user pinned an unsafe move, we refuse
+ * to schedule it.
+ * @param {string[]} ids
+ * @returns {string[]}
+ */
+export function filterSafeExerciseIds(ids) {
+  if (!state.profile) return [];
+  const conds = state.profile.conditions ?? [];
+  return ids.filter((id) => {
+    const ex = findExercise(id);
+    if (!ex) return false;
+    return !ex.unsafeFor?.some((c) => conds.includes(c));
+  });
+}
+
+/**
+ * Build an ad-hoc day from a list of exerciseIds and stage it for the session
+ * player. Caller is expected to navigate to the session route afterwards.
+ * IDs are passed through `filterSafeExerciseIds` first — even user-pinned
+ * exercises that became unsafe after a profile change are dropped.
+ * @param {string[]} exerciseIds
+ * @returns {boolean} true if a day was staged, false if no safe IDs left
+ */
+export function startAdHocFromExerciseIds(exerciseIds) {
+  if (!state.profile || !exerciseIds?.length) return false;
+  const safe = filterSafeExerciseIds(exerciseIds);
+  if (safe.length === 0) return false;
+  const day = buildCustomDay({
+    items: safe.map((id) => ({ exerciseId: id })),
+    profile: state.profile,
+  });
+  setAdHocDay(day);
+  return true;
 }
 
 /** True if user has finished onboarding (= has a profile). */
