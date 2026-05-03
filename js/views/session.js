@@ -159,14 +159,21 @@ function restView(block, ex) {
   const upcoming = isLastSet
     ? next ? `Tiếp: ${getExercise(next.exerciseId).name}` : 'Sắp hết!'
     : `Set tiếp theo: ${session.setIdx + 2}/${block.sets}`;
-  return el('div.session-main.is-rest', {}, [
+  // Whole rest screen is tappable — easier than aiming at the footer button
+  // on a small screen mid-workout. Click handler still goes through
+  // completeOrSkip so the same "stop ticker → advanceSet" path runs.
+  return el('div.session-main.is-rest', {
+    role: 'button', tabindex: 0,
+    onClick: completeOrSkip,
+    onKeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') completeOrSkip(); },
+  }, [
     el('div.exercise-icon', {}, ['⏸']),
     el('h1.exercise-title', {}, ['Nghỉ']),
     el('div.big-display', {}, [
       el('div.big-num.timer', {}, [fmtTime(session.remainingMs / 1000)]),
       el('div.big-sub', {}, [upcoming]),
     ]),
-    el('p.exercise-instructions', {}, ['Hít thở sâu, uống ngụm nước, lắc tay thả lỏng.']),
+    el('p.exercise-instructions', {}, ['Chạm bất kỳ đâu để bỏ qua nghỉ.']),
   ]);
 }
 
@@ -280,12 +287,25 @@ function advanceSet() {
 
 function completeOrSkip() {
   stopTicker();
+  Speech.cancel();
   if (session.phase === 'rest') return advanceSet();
-  // user pressed "Hoàn thành set" early → go to rest
+  // user pressed "Hoàn thành set" — last set of last block → skip pointless
+  // rest and finish immediately.
+  const block = currentBlock();
+  const isLastSet = session.setIdx + 1 >= block.sets;
+  const isLastBlock = session.blockIdx + 1 >= session.day.blocks.length;
+  if (isLastSet && isLastBlock) return advanceSet();
   startRest();
 }
 
 function skipBlock() {
+  // While resting, the header skip icon should skip just the rest (not the
+  // whole block) — that's what users intuitively reach for when impatient.
+  if (session.phase === 'rest') {
+    stopTicker();
+    Speech.cancel();
+    return advanceSet();
+  }
   if (!confirm('Bỏ qua bài này?')) return;
   stopTicker();
   session.blockIdx++;

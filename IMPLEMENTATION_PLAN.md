@@ -17,8 +17,9 @@ Sống tài liệu — cập nhật mỗi lần ship 1 milestone.
 - Progress: weight chart (vanilla canvas), session history
 - Settings: edit profile, replan, audio, TV mode, reset
 - TV mode: scale up font 2x
-- 103 tests across 6 layers (plan + quick session unit, storage round-trip, state setters + migration + favorites + recents + safety filter, session integration via jsdom + mock timers, view smoke incl. dashboard variants + browse/session star pin, PWA contract)
+- 112 tests across 6 layers (plan + quick session + buildCustomDay unit, storage round-trip, state setters + migration + favorites + recents + safety filter, session integration via jsdom + mock timers — incl. skip-rest button, header-skip-during-rest = skip-rest-only, no-pointless-rest-after-last-set, tap-rest-to-skip — view smoke incl. dashboard variants + browse/session star pin, PWA contract)
 - ⭐ pin button trên browse + session — tap star = toggle favorites (e.stopPropagation tách khỏi cart toggle), filled khi pinned. Lúc tập user spot bài thích → pin từ session header → lần sau lên dashboard tap 1 phát chạy lại.
+- Ad-hoc launch UX (2026-05-03): `buildCustomDay` không auto-thêm warmup/cooldown nữa (default off — pick 1 bài chỉ chạy 1 bài), không scale theo level (giữ defaultSets/defaultReps gốc — trước đây beginner ×0.7 ép mọi bài về 3×11). Skip rest: nút "Bỏ qua nghỉ" + chạm vào màn rest = skip ngay; header skip icon ở phase rest chỉ skip nghỉ, không bỏ cả block; set cuối block cuối thì kết thúc luôn không vào rest vô ích.
 
 ✅ **JTBD coverage** (theo feedback 2026-04-29):
 - JTBD-1 today's plan ✅

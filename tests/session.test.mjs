@@ -204,6 +204,71 @@ describe('session: multi-set block with rest', () => {
   });
 });
 
+describe('session: skip rest', () => {
+  it('"Bỏ qua nghỉ" button advances to next set immediately, no waiting', () => {
+    setAdHocDay(timeBlockDay({ duration: 3, sets: 2, restSeconds: 30 }));
+    renderSession(appRoot());
+
+    findButton('Bắt đầu set').click();
+    advance(3500);  // set 1 done → rest
+    assert.ok(appRoot().textContent.includes('Nghỉ'), 'should be in rest phase');
+
+    // Skip rest — should NOT have to wait 30s; immediately into set 2.
+    findButton('Bỏ qua nghỉ').click();
+    assert.ok(!appRoot().textContent.includes('Nghỉ'), 'rest screen should be gone');
+    assert.ok($('.big-num.timer'), 'set 2 timer should be visible');
+
+    // Cleanup: pause to release the ticker so the next test starts cleanly.
+    findButton('Tạm dừng')?.click();
+  });
+
+  it('header skip icon during rest skips just the rest, not the whole block', () => {
+    setAdHocDay(timeBlockDay({ duration: 3, sets: 3, restSeconds: 30 }));
+    renderSession(appRoot());
+
+    findButton('Bắt đầu set').click();
+    advance(3500);
+    assert.ok(appRoot().textContent.includes('Nghỉ'), 'rest after set 1');
+
+    const skipBtn = $$('button.icon-btn').find((b) => b.title === 'Bỏ qua');
+    skipBtn.click();
+
+    // Should now be in set 2 of same block, not advanced to next block.
+    assert.ok($('.big-num.timer'), 'set 2 active');
+    assert.ok(appRoot().textContent.includes('Set 2/3'), 'should be Set 2/3, not advanced past block');
+
+    findButton('Tạm dừng')?.click();
+  });
+
+  it('finishing the last set of the last block goes straight to finish — no pointless rest', () => {
+    setAdHocDay(timeBlockDay({ duration: 3, sets: 1, restSeconds: 60 }));
+    renderSession(appRoot());
+
+    findButton('Bắt đầu set').click();
+    // User taps "Hoàn thành set" before timer ends.
+    findButton('Hoàn thành set').click();
+
+    // Should NOT enter rest — should be at finish card.
+    assert.ok(!appRoot().textContent.includes('Nghỉ'), 'no rest screen after last set');
+    assert.equal(state.sessions.length, 1, 'session record persisted');
+    assert.ok(appRoot().textContent.includes('Xong rồi'));
+  });
+
+  it('tapping the rest screen body skips the rest', () => {
+    setAdHocDay(timeBlockDay({ duration: 3, sets: 2, restSeconds: 30 }));
+    renderSession(appRoot());
+
+    findButton('Bắt đầu set').click();
+    advance(3500);
+    const restEl = $('.session-main.is-rest');
+    assert.ok(restEl, 'rest container should be present');
+    restEl.click();
+    assert.ok(!appRoot().textContent.includes('Nghỉ'), 'tap should have skipped rest');
+
+    findButton('Tạm dừng')?.click();
+  });
+});
+
 describe('session: bootSession resets between ad-hoc days', () => {
   it('starting a new adHocDay re-renders from intro of the new first block', () => {
     setAdHocDay(timeBlockDay({ exerciseId: 'plank-knee', duration: 30 }));

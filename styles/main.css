@@ -816,7 +816,12 @@
     margin: 0 auto;
     width: 100%;
   }
-  .session-main.is-rest { background: linear-gradient(180deg, transparent, rgba(34,197,94,0.05)); }
+  .session-main.is-rest {
+    background: linear-gradient(180deg, transparent, rgba(34,197,94,0.05));
+    cursor: pointer;
+    -webkit-tap-highlight-color: rgba(34,197,94,0.18);
+  }
+  .session-main.is-rest:active { background: rgba(34,197,94,0.10); }
 
   .exercise-icon {
     font-size: 72px;

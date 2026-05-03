@@ -2,18 +2,17 @@
  * Custom workout builder — turn a hand-picked list of exercises into a plan day
  * runnable by the session player.
  *
- * Pure function. No state mutation. Reuses level-scaling logic from quick.js
- * for consistency.
+ * Pure function. No state mutation. Unlike the auto plan generator, this does
+ * NOT scale by user level — when the user picks an exercise themselves, they
+ * get the exercise's natural defaults, not a beginner-scaled version. Level
+ * scaling is for auto-generated weekly plans only.
+ *
+ * Warm-up + cool-down are also opt-in (default off) — ad-hoc sessions launched
+ * from a single favorite/recent exercise shouldn't force a 5-min treadmill walk.
  */
 
-import { DAY_TYPE, LEVEL } from '../constants.js';
+import { DAY_TYPE } from '../constants.js';
 import { getExercise } from '../data/exercises.js';
-
-const LEVEL_INTENSITY = Object.freeze({
-  [LEVEL.BEGINNER]:     { sets: 0.7, reps: 0.7, duration: 0.7 },
-  [LEVEL.INTERMEDIATE]: { sets: 1.0, reps: 1.0, duration: 1.0 },
-  [LEVEL.ADVANCED]:     { sets: 1.2, reps: 1.3, duration: 1.3 },
-});
 
 /**
  * @typedef {Object} BuilderItem
@@ -28,11 +27,11 @@ const LEVEL_INTENSITY = Object.freeze({
  * @returns {import('./generator.js').PlanDay}
  */
 export function buildCustomDay(opts) {
-  const { items, profile, includeWarmup = true, includeCooldown = true } = opts;
+  const { items, includeWarmup = false, includeCooldown = false } = opts;
   const blocks = [];
-  if (includeWarmup) blocks.push(scaleBlock({ exerciseId: 'walk-warmup' }, profile));
-  for (const item of items) blocks.push(scaleBlock(item, profile));
-  if (includeCooldown) blocks.push(scaleBlock({ exerciseId: 'walk-cooldown' }, profile));
+  if (includeWarmup) blocks.push(materializeBlock({ exerciseId: 'walk-warmup' }));
+  for (const item of items) blocks.push(materializeBlock(item));
+  if (includeCooldown) blocks.push(materializeBlock({ exerciseId: 'walk-cooldown' }));
   return {
     weekday: new Date().getDay(),
     dayType: DAY_TYPE.CARDIO_CORE,
@@ -44,17 +43,14 @@ export function buildCustomDay(opts) {
   };
 }
 
-function scaleBlock(item, profile) {
+function materializeBlock(item) {
   const ex = getExercise(item.exerciseId);
-  const m = LEVEL_INTENSITY[profile.level] ?? LEVEL_INTENSITY[LEVEL.BEGINNER];
-  const sets = Math.max(1, Math.round((item.sets ?? ex.defaultSets) * m.sets));
+  const sets = item.sets ?? ex.defaultSets;
   const restSeconds = ex.defaultRest;
   if (ex.mode === 'time') {
-    const duration = Math.max(10, Math.round((item.duration ?? ex.defaultDuration) * m.duration));
-    return { exerciseId: item.exerciseId, sets, duration, restSeconds };
+    return { exerciseId: item.exerciseId, sets, duration: item.duration ?? ex.defaultDuration, restSeconds };
   }
-  const reps = Math.max(4, Math.round((item.reps ?? ex.defaultReps) * m.reps));
-  return { exerciseId: item.exerciseId, sets, reps, restSeconds };
+  return { exerciseId: item.exerciseId, sets, reps: item.reps ?? ex.defaultReps, restSeconds };
 }
 
 function estimateMinutes(blocks) {

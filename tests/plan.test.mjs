@@ -13,6 +13,7 @@ import assert from 'node:assert/strict';
 
 import { generatePlan } from '../js/plan/generator.js';
 import { generateQuickSession, FOCUS } from '../js/plan/quick.js';
+import { buildCustomDay } from '../js/plan/builder.js';
 import { EXERCISES } from '../js/data/exercises.js';
 
 // ---------- fixtures ----------
@@ -176,6 +177,65 @@ describe('generateQuickSession', () => {
     assert.ok(ids.includes('walk-cooldown'), 'no walk-cooldown in session');
   });
 
+});
+
+// ============================================================
+//                    BUILD CUSTOM DAY (ad-hoc)
+// ============================================================
+
+describe('buildCustomDay', () => {
+  it('does NOT auto-add warmup or cooldown by default — single-favorite launch stays single bài', () => {
+    const day = buildCustomDay({
+      items: [{ exerciseId: 'glute-bridge' }],
+      profile: CORE_EASY_USER,
+    });
+    assert.equal(day.blocks.length, 1, 'expected only the picked exercise, no warmup/cooldown');
+    assert.equal(day.blocks[0].exerciseId, 'glute-bridge');
+  });
+
+  it('includes warmup + cooldown when explicitly requested', () => {
+    const day = buildCustomDay({
+      items: [{ exerciseId: 'glute-bridge' }],
+      profile: CORE_EASY_USER,
+      includeWarmup: true,
+      includeCooldown: true,
+    });
+    assert.equal(day.blocks[0].exerciseId, 'walk-warmup');
+    assert.equal(day.blocks.at(-1).exerciseId, 'walk-cooldown');
+  });
+
+  it('preserves the exercise\'s natural defaults — no level scaling on hand-picked exercises', () => {
+    // glute-bridge: defaultSets=3, defaultReps=15. BEGINNER scaling would give
+    // 2×11 — that's the bug. Hand-picked must keep 3×15.
+    const day = buildCustomDay({
+      items: [{ exerciseId: 'glute-bridge' }],
+      profile: CORE_EASY_USER,
+    });
+    const block = day.blocks[0];
+    assert.equal(block.sets, 3, 'sets should match exercise defaultSets, not be scaled down');
+    assert.equal(block.reps, 15, 'reps should match exercise defaultReps, not be scaled down');
+  });
+
+  it('respects explicit per-item overrides', () => {
+    const day = buildCustomDay({
+      items: [{ exerciseId: 'glute-bridge', sets: 5, reps: 20 }],
+      profile: CORE_EASY_USER,
+    });
+    assert.equal(day.blocks[0].sets, 5);
+    assert.equal(day.blocks[0].reps, 20);
+  });
+
+  it('time-mode block uses defaultDuration as-is', () => {
+    const day = buildCustomDay({
+      items: [{ exerciseId: 'plank-knee' }],  // time mode, defaultDuration=30, defaultSets=3
+      profile: CORE_EASY_USER,
+    });
+    assert.equal(day.blocks[0].duration, 30);
+    assert.equal(day.blocks[0].sets, 3);
+  });
+});
+
+describe('generateQuickSession (continued)', () => {
   it('caps work-exercise count to keep variety reasonable', () => {
     const day = generateQuickSession({ focus: FOCUS.ALL, durationMin: 60, profile: ADVANCED_USER });
     const workBlocks = day.blocks.filter((b) => {

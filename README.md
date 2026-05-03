@@ -9,7 +9,8 @@ Tự lập lịch tuần dựa trên profile (giới tính, cân nặng, mục t
 - **Onboarding wizard** — 7 bước nhập profile + chọn mục tiêu/thiết bị/lưu ý
 - **Plan generator** — tạo lịch 7 ngày tự động, scale theo trình độ
 - **Dashboard "favorites-first"** — pin bài hay tập (⭐), bấm 1 phát chạy luôn; hero "Tập tiếp" tự gợi lại bài bạn vừa làm; plan chỉ là 1 dòng phụ. App không ép theo lịch tuần — bạn chọn 1-2 bài là chạy.
-- **Session player** — full-screen guided workout: TTS đếm rep tiếng Việt, chuông báo nghỉ, đếm ngược 3-2-1
+- **Session player** — full-screen guided workout: TTS đếm rep tiếng Việt, chuông báo nghỉ, đếm ngược 3-2-1. Chạm vào màn nghỉ (hoặc nút "Bỏ qua nghỉ") để qua ngay; set cuối không bắt nghỉ vô ích
+- **Ad-hoc launch** — pick từ favorites/recents/browse → chạy đúng 1-2 bài bạn chọn, không ép thêm warmup/cooldown, giữ đúng defaults bài (không bị scale xuống 3×11)
 - **Weight tracker** — biểu đồ cân nặng (canvas, không thư viện)
 - **Lịch sử buổi tập** + streak ngày liên tiếp
 - **TV mode** — chữ to gấp 2 lần, cho m mở trên smart TV vừa tập vừa nhìn
