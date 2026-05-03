@@ -22,6 +22,7 @@ import { navigate } from '../router.js';
 import { fmtDuration } from '../ui/format.js';
 import { button, el, icon, mount } from '../ui/dom.js';
 import { openTutorial } from '../ui/tutorial.js';
+import { effectiveValue, openCustomizeSheet } from '../ui/customize-sheet.js';
 
 /** @type {string[]} ordered list of exercise IDs in the current cart */
 let cart = [];
@@ -169,7 +170,21 @@ function cartItemRow(id, idx) {
   const ex = EXERCISES[id];
   return el('li.cart-row', {}, [
     el('div.cart-row-num', {}, [String(idx + 1)]),
-    el('div.cart-row-name', {}, [ex.name]),
+    el('div.cart-row-info', {}, [
+      el('div.cart-row-name', {}, [ex.name]),
+      el('div.cart-row-meta.muted', {}, [effectiveSummary(id)]),
+    ]),
+    el('button.icon-btn.cart-customize', {
+      type: 'button', title: 'Tùy chỉnh',
+      onClick: (e) => {
+        e.stopPropagation();
+        openCustomizeSheet(id, { onChange: () => {
+          // Refresh just the meta line — easier to re-render the cart sheet.
+          const open = document.querySelector('.sheet-backdrop');
+          if (open) { open.remove(); openCartSheet(); }
+        } });
+      },
+    }, ['⚙']),
     el('button.icon-btn.cart-remove', {
       type: 'button',
       onClick: (e) => {
@@ -184,11 +199,25 @@ function cartItemRow(id, idx) {
   ]);
 }
 
+/** Single-line "3×12 rep · nghỉ 60s" summary using the EFFECTIVE values. */
+function effectiveSummary(id) {
+  const ex = EXERCISES[id];
+  const sets = effectiveValue(id, 'sets');
+  const rest = effectiveValue(id, 'restSeconds');
+  if (ex.mode === 'time') {
+    const dur = effectiveValue(id, 'duration');
+    return `${sets}× ${fmtDuration(dur)} · nghỉ ${rest}s`;
+  }
+  const word = ex.mode === 'reps-per-side' ? 'rep/bên' : 'rep';
+  return `${sets}× ${effectiveValue(id, 'reps')} ${word} · nghỉ ${rest}s`;
+}
+
 function startCustomSession() {
   if (cart.length === 0) return;
   const day = buildCustomDay({
     items: cart.map((id) => ({ exerciseId: id })),
     profile: state.profile,
+    customizations: state.customizations,
   });
   setAdHocDay(day);
   cart = [];

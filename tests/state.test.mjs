@@ -18,6 +18,7 @@ import {
   setAdHocDay, setSettings, resetAll, isOnboarded,
   toggleFavorite, isFavorite, getRecentExerciseIds,
   filterSafeExerciseIds, startAdHocFromExerciseIds,
+  getCustomization, setCustomization,
 } from '../js/state.js';
 import { CONDITION, DEFAULT_SETTINGS, STORAGE_KEYS } from '../js/constants.js';
 
@@ -36,6 +37,7 @@ function freshState() {
   state.settings = { ...DEFAULT_SETTINGS };
   state.adHocDay = null;
   state.favorites = [];
+  state.customizations = {};
 }
 
 beforeEach(freshState);
@@ -302,6 +304,67 @@ describe('startAdHocFromExerciseIds', () => {
     // Block list should include warmup + the picked exercise + cooldown.
     const ids = state.adHocDay.blocks.map((b) => b.exerciseId);
     assert.ok(ids.includes('dead-bug'));
+  });
+
+  it('passes user customizations through to the staged day', () => {
+    setProfile(BASE_PROFILE);
+    setCustomization('dead-bug', { sets: 4, reps: 20 });
+    startAdHocFromExerciseIds(['dead-bug']);
+    const block = state.adHocDay.blocks.find((b) => b.exerciseId === 'dead-bug');
+    assert.equal(block.sets, 4);
+    assert.equal(block.reps, 20);
+  });
+});
+
+describe('customizations', () => {
+  beforeEach(() => freshState());
+
+  it('getCustomization returns {} when nothing saved', () => {
+    assert.deepEqual(getCustomization('dead-bug'), {});
+  });
+
+  it('setCustomization persists to localStorage', () => {
+    setCustomization('dead-bug', { sets: 4, reps: 20 });
+    const stored = JSON.parse(globalThis.localStorage.getItem(STORAGE_KEYS.CUSTOMIZATIONS));
+    assert.deepEqual(stored, { 'dead-bug': { sets: 4, reps: 20 } });
+  });
+
+  it('setCustomization MERGES new fields over existing', () => {
+    setCustomization('dead-bug', { sets: 4 });
+    setCustomization('dead-bug', { reps: 20 });
+    assert.deepEqual(getCustomization('dead-bug'), { sets: 4, reps: 20 });
+  });
+
+  it('passing null for a single field clears just that field', () => {
+    setCustomization('dead-bug', { sets: 4, reps: 20 });
+    setCustomization('dead-bug', { sets: null });
+    assert.deepEqual(getCustomization('dead-bug'), { reps: 20 });
+  });
+
+  it('passing null for the whole patch wipes the exercise customization', () => {
+    setCustomization('dead-bug', { sets: 4, reps: 20 });
+    setCustomization('dead-bug', null);
+    assert.deepEqual(getCustomization('dead-bug'), {});
+    assert.equal('dead-bug' in state.customizations, false);
+  });
+
+  it('clearing every field via null leaves no entry for the exercise', () => {
+    setCustomization('dead-bug', { sets: 4 });
+    setCustomization('dead-bug', { sets: null });
+    assert.equal('dead-bug' in state.customizations, false);
+  });
+
+  it('survives reload — load() reads customizations back from storage', () => {
+    setCustomization('dead-bug', { sets: 4, reps: 20 });
+    state.customizations = {};
+    load();
+    assert.deepEqual(getCustomization('dead-bug'), { sets: 4, reps: 20 });
+  });
+
+  it('resetAll wipes customizations', () => {
+    setCustomization('dead-bug', { sets: 4 });
+    resetAll();
+    assert.deepEqual(state.customizations, {});
   });
 });
 

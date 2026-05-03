@@ -22,6 +22,7 @@ import { generateQuickSession, FOCUS } from '../plan/quick.js';
 import { navigate } from '../router.js';
 import { todayISO } from '../ui/format.js';
 import { button, card, el, mount } from '../ui/dom.js';
+import { effectiveValue, openCustomizeSheet } from '../ui/customize-sheet.js';
 import { navBar } from './_nav.js';
 
 const QUICK_DEFAULT_MINUTES = 30;
@@ -126,13 +127,34 @@ function favoritesEmpty() {
 }
 
 function favoriteTile(ex) {
-  return el('button.fav-tile', {
-    type: 'button',
-    onClick: () => launchAdHoc([ex.id]),
-  }, [
-    el('span.fav-emoji', {}, [TYPE_EMOJI[ex.type] ?? '⚡']),
-    el('span.fav-name', {}, [ex.name]),
+  return el('div.fav-tile-wrap', {}, [
+    el('button.fav-tile', {
+      type: 'button',
+      onClick: () => launchAdHoc([ex.id]),
+    }, [
+      el('span.fav-emoji', {}, [TYPE_EMOJI[ex.type] ?? '⚡']),
+      el('span.fav-name', {}, [ex.name]),
+      el('span.fav-meta', {}, [tileSummary(ex)]),
+    ]),
+    el('button.icon-btn.fav-customize', {
+      type: 'button', title: 'Tùy chỉnh',
+      onClick: (e) => {
+        e.stopPropagation();
+        openCustomizeSheet(ex.id, { onChange: () => render(document.getElementById('app')) });
+      },
+    }, ['⚙']),
   ]);
+}
+
+/** "3×15 · 30s nghỉ" using the EFFECTIVE (user-customised) values. */
+function tileSummary(ex) {
+  const sets = effectiveValue(ex.id, 'sets');
+  const rest = effectiveValue(ex.id, 'restSeconds');
+  if (ex.mode === 'time') {
+    const dur = effectiveValue(ex.id, 'duration');
+    return `${sets}× ${dur}s · nghỉ ${rest}s`;
+  }
+  return `${sets}× ${effectiveValue(ex.id, 'reps')} · nghỉ ${rest}s`;
 }
 
 // ---------- mix nhanh ----------

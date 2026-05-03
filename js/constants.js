@@ -14,6 +14,18 @@ export const STORAGE_KEYS = Object.freeze({
   SETTINGS: `${STORAGE_PREFIX}:settings`,
   CURRENT_SESSION: `${STORAGE_PREFIX}:currentSession`,
   FAVORITES: `${STORAGE_PREFIX}:favorites`,
+  CUSTOMIZATIONS: `${STORAGE_PREFIX}:customizations`,
+});
+
+/**
+ * Min/max + step for the per-exercise customize sheet. Bounds are deliberately
+ * generous — the user is final authority. See docs/evidence-base.md §5.
+ */
+export const CUSTOMIZE_BOUNDS = Object.freeze({
+  sets:        { min: 1,  max: 10,   step: 1  },
+  reps:        { min: 1,  max: 50,   step: 1  },
+  duration:    { min: 5,  max: 3600, step: 5  },  // seconds
+  restSeconds: { min: 0,  max: 300,  step: 5  },
 });
 
 /** Max number of distinct exerciseIds returned by getRecentExerciseIds. */

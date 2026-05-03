@@ -35,6 +35,7 @@ function seedFullState() {
   state.settings = { ...DEFAULT_SETTINGS };
   state.adHocDay = null;
   state.favorites = [];
+  state.customizations = {};
 }
 
 function appRoot() { return document.getElementById('app'); }
@@ -199,5 +200,67 @@ describe('view smoke: low-impact-core flags drive UI label rendering', () => {
     assert.ok(text.includes('Lưng nhạy cảm'),         'BACK_EASY label should appear');
     assert.ok(text.includes('Gối nhạy cảm'),          'KNEE_EASY label should appear');
     assert.ok(!/thoát vị|hernia/i.test(text),         'no disease names in onboarding copy');
+  });
+});
+
+describe('views render correctly when customizations are present', () => {
+  beforeEach(() => seedFullState());
+
+  it('dashboard favorite tile shows the EFFECTIVE meta (user-customised values)', async () => {
+    state.favorites = ['glute-bridge'];
+    state.customizations = { 'glute-bridge': { sets: 5, reps: 25 } };
+    const { render } = await import('../js/views/dashboard.js');
+    render(appRoot());
+    const meta = appRoot().querySelector('.fav-meta');
+    assert.ok(meta, 'fav-meta should render on the tile');
+    assert.ok(meta.textContent.includes('5×'),
+      `meta should show 5 sets, got: ${meta.textContent}`);
+    assert.ok(meta.textContent.includes('25'),
+      `meta should show 25 reps, got: ${meta.textContent}`);
+  });
+});
+
+describe('customize sheet', () => {
+  beforeEach(() => seedFullState());
+
+  it('opens with steppers + reflects exercise default', async () => {
+    const { openCustomizeSheet } = await import('../js/ui/customize-sheet.js');
+    openCustomizeSheet('glute-bridge');  // defaults: 3×15, 30s rest
+
+    const sheet = document.body.querySelector('.customize-sheet');
+    assert.ok(sheet, 'sheet should be in DOM');
+
+    const text = sheet.textContent;
+    assert.ok(text.includes('Cầu mông'),   'shows exercise name');
+    assert.ok(text.includes('Số set'),     'sets stepper');
+    assert.ok(text.includes('Reps'),       'reps stepper');
+    assert.ok(text.includes('Nghỉ'),       'rest stepper');
+
+    // The CURRENT value must be the exercise default (no customization yet).
+    const nums = [...sheet.querySelectorAll('.stepper-num')].map((n) => n.textContent);
+    assert.ok(nums.includes('3'),  `expected 3 sets shown, got ${nums.join(',')}`);
+    assert.ok(nums.includes('15'), `expected 15 reps shown, got ${nums.join(',')}`);
+
+    sheet.closest('.sheet-backdrop')?.remove();
+  });
+
+  it('+ stepper writes a customization to state and re-renders the new value', async () => {
+    const { openCustomizeSheet } = await import('../js/ui/customize-sheet.js');
+    openCustomizeSheet('glute-bridge');
+
+    // Click + on the FIRST stepper (sets).
+    const sheet = document.body.querySelector('.customize-sheet');
+    const firstPlus = sheet.querySelectorAll('.stepper-btn')[1];  // [0] is −, [1] is +
+    firstPlus.click();
+
+    assert.equal(state.customizations['glute-bridge']?.sets, 4,
+      'state.customizations should persist the bumped value');
+
+    // Re-rendered sheet should now show "4" + an "đã chỉnh" tag.
+    const updated = document.body.querySelector('.customize-sheet');
+    assert.ok(updated.textContent.includes('đã chỉnh'),
+      'the edited tag should appear once a field is customised');
+
+    document.body.querySelector('.sheet-backdrop')?.remove();
   });
 });

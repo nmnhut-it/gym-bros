@@ -233,6 +233,50 @@ describe('buildCustomDay', () => {
     assert.equal(day.blocks[0].duration, 30);
     assert.equal(day.blocks[0].sets, 3);
   });
+
+  describe('user customizations override exercise defaults', () => {
+    it('reads sets/reps/restSeconds from customizations when present', () => {
+      const day = buildCustomDay({
+        items: [{ exerciseId: 'glute-bridge' }],
+        profile: CORE_EASY_USER,
+        customizations: { 'glute-bridge': { sets: 5, reps: 25, restSeconds: 90 } },
+      });
+      const block = day.blocks[0];
+      assert.equal(block.sets, 5);
+      assert.equal(block.reps, 25);
+      assert.equal(block.restSeconds, 90);
+    });
+
+    it('falls back to exercise defaults for fields the user did NOT customise', () => {
+      const day = buildCustomDay({
+        items: [{ exerciseId: 'glute-bridge' }],  // defaults: 3×15, 30s rest
+        profile: CORE_EASY_USER,
+        customizations: { 'glute-bridge': { sets: 5 } },  // only sets overridden
+      });
+      const block = day.blocks[0];
+      assert.equal(block.sets, 5,           'sets uses user override');
+      assert.equal(block.reps, 15,          'reps still falls back to exercise default');
+      assert.equal(block.restSeconds, 30,   'rest still falls back to exercise default');
+    });
+
+    it('explicit BuilderItem override beats user customization (one-shot wins)', () => {
+      const day = buildCustomDay({
+        items: [{ exerciseId: 'glute-bridge', sets: 7 }],
+        profile: CORE_EASY_USER,
+        customizations: { 'glute-bridge': { sets: 5 } },
+      });
+      assert.equal(day.blocks[0].sets, 7, 'item-level override wins');
+    });
+
+    it('time-mode customization overrides duration', () => {
+      const day = buildCustomDay({
+        items: [{ exerciseId: 'plank-knee' }],
+        profile: CORE_EASY_USER,
+        customizations: { 'plank-knee': { duration: 60 } },
+      });
+      assert.equal(day.blocks[0].duration, 60);
+    });
+  });
 });
 
 describe('generateQuickSession (continued)', () => {

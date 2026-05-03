@@ -60,6 +60,16 @@ export const state = {
    * @type {string[]}
    */
   favorites: [],
+  /**
+   * Per-exercise overrides on top of `data/exercises.js` defaults. The
+   * builder reads these when materialising blocks for ad-hoc sessions, so
+   * the user's tweaks (e.g. "my pelvic-tilt is 4×20, 60s rest") persist
+   * across launches. See docs/evidence-base.md §5 — personalisation drives
+   * retention. Shape: `{ [exerciseId]: { sets?, reps?, duration?, restSeconds? } }`
+   * — any field can be omitted; missing fields fall back to exercise default.
+   * @type {Record<string, { sets?: number, reps?: number, duration?: number, restSeconds?: number }>}
+   */
+  customizations: {},
 };
 
 /** Load everything from localStorage into memory. Call once at app boot. */
@@ -70,6 +80,7 @@ export function load() {
   state.weights  = Storage.load(STORAGE_KEYS.WEIGHTS, []);
   state.settings = { ...DEFAULT_SETTINGS, ...Storage.load(STORAGE_KEYS.SETTINGS, {}) };
   state.favorites = Storage.load(STORAGE_KEYS.FAVORITES, []);
+  state.customizations = Storage.load(STORAGE_KEYS.CUSTOMIZATIONS, {});
 }
 
 /** @param {(e: Event) => void} fn */
@@ -133,6 +144,7 @@ export function resetAll() {
   state.weights = [];
   state.settings = { ...DEFAULT_SETTINGS };
   state.favorites = [];
+  state.customizations = {};
   emit('reset');
 }
 
@@ -153,6 +165,49 @@ export function toggleFavorite(exerciseId) {
 /** @param {string} exerciseId */
 export function isFavorite(exerciseId) {
   return state.favorites.includes(exerciseId);
+}
+
+/**
+ * Read the user's customization for an exercise. Returns an empty object if
+ * the user hasn't tweaked anything yet — callers fall back to exercise
+ * defaults field-by-field.
+ * @param {string} exerciseId
+ * @returns {{ sets?: number, reps?: number, duration?: number, restSeconds?: number }}
+ */
+export function getCustomization(exerciseId) {
+  return state.customizations[exerciseId] ?? {};
+}
+
+/**
+ * Merge new fields into the user's customization for an exercise. Pass `null`
+ * for a field to clear it (revert that field to the exercise default). Pass
+ * `null` for the whole patch to wipe the customization entirely.
+ * @param {string} exerciseId
+ * @param {Object|null} patch
+ */
+export function setCustomization(exerciseId, patch) {
+  if (!exerciseId) return;
+  const next = patch === null ? {} : mergeCustomization(state.customizations[exerciseId], patch);
+  state.customizations = Object.keys(next).length === 0
+    ? withoutKey(state.customizations, exerciseId)
+    : { ...state.customizations, [exerciseId]: next };
+  Storage.save(STORAGE_KEYS.CUSTOMIZATIONS, state.customizations);
+  emit('customizations');
+}
+
+function mergeCustomization(current, patch) {
+  const next = { ...(current ?? {}) };
+  for (const [k, v] of Object.entries(patch)) {
+    if (v === null || v === undefined) delete next[k];
+    else next[k] = v;
+  }
+  return next;
+}
+
+function withoutKey(obj, key) {
+  if (!(key in obj)) return obj;
+  const { [key]: _drop, ...rest } = obj;
+  return rest;
 }
 
 /**
@@ -209,6 +264,7 @@ export function startAdHocFromExerciseIds(exerciseIds) {
   const day = buildCustomDay({
     items: safe.map((id) => ({ exerciseId: id })),
     profile: state.profile,
+    customizations: state.customizations,
   });
   setAdHocDay(day);
   return true;

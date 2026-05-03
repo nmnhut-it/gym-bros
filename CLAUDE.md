@@ -32,12 +32,25 @@ constants → storage / data → state → plan-generator
 - `js/router.js` — hash router. Hash routing chosen so app runs from any path without server config.
 - `js/views/*.js` — one file per route (`onboarding`, `dashboard`, `plan`, `session`, `progress`, `settings`, `browse`, plus shared `_nav`). Each exports `render(root)`. Views build DOM via `el()`, mount to `root`.
 
+## Evidence base (READ BEFORE CHANGING DEFAULTS OR EXERCISE DATA)
+
+Full citations + reasoning live in **`docs/evidence-base.md`**. Headlines:
+
+- **Sets/reps/rest for novices (ACSM 2026 Position Stand):** 1–3 sets, 8–12 reps, **60–120s rest** for compound work. Stability/endurance core (dead-bug, glute-bridge) is fine at 30–45s — different stimulus.
+- **Cardio for fat loss:** 12-3-30 (12% incline, ~4.8 km/h, 30 min) burns ~same calories as a self-paced run with **41% energy from fat** (vs much less for running). Lower joint impact. Validated in a 2025 PMC study. Zone 2 (HR 120–140) is the broader category.
+- **Low-IAP core training:** breath-driven movement; exhale initiates effort; activate transverse abdominis ("rốn về cột sống") before each set. Avoid Valsalva and any move that pushes pressure outward through the linea alba.
+- **Progressive overload:** linear progression — same routine 4–6 weeks, +1 rep when all sets clean, then progress to harder variant. Tracking is the engine; without records, progression stalls.
+- **App retention:** simplified onboarding (+50%), visible progress (#1 reason users return), empathetic copy. Adherence ≠ retention.
+
+Update `docs/evidence-base.md` AND the code in the same commit when the science (or our interpretation of it) changes.
+
 ## Critical safety rules (DO NOT BREAK)
 
 1. **Low-impact-core filter is non-negotiable.** Every exercise in `data/exercises.js` MUST declare `unsafeFor` if it raises intra-abdominal pressure. Plan generator AND `state.startAdHocFromExerciseIds` (favorites/recents launch path) BOTH apply the filter — even a user-pinned exercise is dropped if it became unsafe after a profile change. Naming describes the *restriction* (avoid high IAP), not any underlying cause — UI never names a disease.
 2. **Never add full sit-ups, V-ups, ab-wheel rollouts, deadlifts, heavy squats** to default plans. They're filtered out under low-impact-core.
-3. **TTS coaching cues must remind to breathe ("thở đều", "thở ra khi đẩy")** — Valsalva (nín thở rặn) raises intra-abdominal pressure and is filtered against. Keep advice generic — describe the technique, not a disease.
+3. **Every load-bearing exercise carries an explicit breath cue.** Minimum: "thở ra khi gắng sức" or "không nín thở". Core moves additionally cue TVA: "rốn về cột sống". Valsalva (nín thở rặn) is what we're filtering against — make the alternative loud.
 4. **Storage migration:** legacy condition codes (`hernia-healed`, `hernia-acute`, `back-pain`, `knee-pain`, `high-bp`, `pregnancy`) auto-map to current ones via `CONDITION_MIGRATIONS` in `state.load()`. When replacing a flag, extend that map.
+5. **Customizations are user authority.** When the user has set a per-exercise customization (`state.customizations[exerciseId]`), the builder uses it verbatim — the safety filter still drops unsafe exercises, but it does NOT silently re-scale sets/reps/rest the user explicitly chose.
 
 ## Code rules (from user's global CLAUDE.md)
 
