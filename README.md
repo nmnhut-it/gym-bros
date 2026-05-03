@@ -11,7 +11,7 @@ Tự lập lịch tuần dựa trên profile (giới tính, cân nặng, mục t
 - **Dashboard "favorites-first"** — pin bài hay tập (⭐), bấm 1 phát chạy luôn; hero "Tập tiếp" tự gợi lại bài bạn vừa làm; plan chỉ là 1 dòng phụ. App không ép theo lịch tuần — bạn chọn 1-2 bài là chạy.
 - **Session player** — full-screen guided workout: TTS đếm rep tiếng Việt, chuông báo nghỉ, đếm ngược 3-2-1. Chạm vào màn nghỉ (hoặc nút "Bỏ qua nghỉ") để qua ngay; set cuối không bắt nghỉ vô ích
 - **Ad-hoc launch** — pick từ favorites/recents/browse → chạy đúng 1-2 bài bạn chọn, không ép thêm warmup/cooldown, giữ đúng defaults bài (không bị scale xuống 3×11)
-- **Per-exercise customization** — mỗi bài có nút ⚙ trên dashboard tile + cart sheet. Chỉnh sets / reps (hoặc thời lượng) / nghỉ với stepper +/−, lần sau mở lại đúng số bạn chỉnh. Default lấy từ ACSM 2026 + bằng chứng khoa học (xem `docs/evidence-base.md`).
+- **Per-exercise customization** — mỗi bài có nút ⚙ trên dashboard tile + cart sheet. Chỉnh sets / reps (hoặc thời lượng) / nghỉ với stepper +/−, lần sau mở lại đúng số bạn chỉnh. Default lấy từ ACSM 2026 + bằng chứng khoa học (xem `docs/evidence-base.md`). Cardio bài có thêm tốc độ (km/h) + độ dốc (%) — máy ở nhà calibration khác máy gym, save pace của riêng m, session intro hiện đúng setup luôn.
 - **Evidence-backed defaults** — sets/reps/rest theo ACSM 2026 Position Stand; cardio đốt mỡ low-impact dùng protocol 12-3-30 (12% dốc, 4.8 km/h, 30 phút) đã được peer-review 2025; mọi bài chịu lực có cue thở ra + TVA activation cho người low-IAP
 - **Weight tracker** — biểu đồ cân nặng (canvas, không thư viện)
 - **Lịch sử buổi tập** + streak ngày liên tiếp

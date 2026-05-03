@@ -78,6 +78,19 @@ without the recovery cost of HIIT. Recommended dose: **30–45 min, 3–5×/week
 We will not over-promise in UI copy. "Fat-burning" framing is fine; "12-3-30
 melts belly fat" is not.
 
+### Effort, not absolute speed
+
+The "3 mph" / "4.8 km/h" number in 12-3-30 is **a proxy for effort**, not a
+calibration target. Home treadmills vary widely (often 10–20% off displayed
+speed; belt friction + motor underpower makes them subjectively harder than
+commercial machines). What actually drives the fat-oxidation result is
+sustained Zone 2 effort: HR ~120–140, talk test passes (you can speak full
+sentences but can't sing comfortably).
+
+**Operationalised:** prescribe the effort, not the number. The app should
+let users save *their* personal speed + incline that produce Zone 2 on
+*their* machine — what matters is they hit Zone 2 for 30 min, full stop.
+
 ### Implications for our defaults
 
 - Add `walk-12-3-30` as a first-class cardio exercise (12% incline, 4.8 km/h,

@@ -263,4 +263,77 @@ describe('customize sheet', () => {
 
     document.body.querySelector('.sheet-backdrop')?.remove();
   });
+
+  it('shows speed + incline steppers ONLY for cardio exercises that declare them', async () => {
+    const { openCustomizeSheet } = await import('../js/ui/customize-sheet.js');
+    openCustomizeSheet('walk-12-3-30');
+    let sheet = document.body.querySelector('.customize-sheet');
+    assert.ok(sheet.textContent.includes('Tốc độ'),  'speed stepper should render');
+    assert.ok(sheet.textContent.includes('Độ dốc'), 'incline stepper should render');
+    sheet.closest('.sheet-backdrop')?.remove();
+
+    // Resistance exercise — no speed/incline.
+    openCustomizeSheet('glute-bridge');
+    sheet = document.body.querySelector('.customize-sheet');
+    assert.ok(!sheet.textContent.includes('Tốc độ'),
+      'speed stepper should NOT render for non-cardio');
+    assert.ok(!sheet.textContent.includes('Độ dốc'),
+      'incline stepper should NOT render for non-cardio');
+    sheet.closest('.sheet-backdrop')?.remove();
+  });
+
+  it('speed stepper handles 0.1 km/h precision without floating-point drift', async () => {
+    const { openCustomizeSheet } = await import('../js/ui/customize-sheet.js');
+    const { setCustomization } = await import('../js/state.js');
+    // Default for walk-12-3-30 is 4.8. Bump down 8 times → 4.0.
+    setCustomization('walk-12-3-30', { speed: 4.8 });
+    for (let i = 0; i < 8; i++) {
+      setCustomization('walk-12-3-30', { speed: Math.round((4.8 - 0.1 * (i + 1)) * 1e6) / 1e6 });
+    }
+    // Sanity-check end value is exactly 4.0 (no drift).
+    const stored = state.customizations['walk-12-3-30']?.speed;
+    assert.ok(Math.abs(stored - 4.0) < 1e-9, `expected 4.0, got ${stored}`);
+
+    // And the customize sheet should display "4.0".
+    openCustomizeSheet('walk-12-3-30');
+    const sheet = document.body.querySelector('.customize-sheet');
+    const nums = [...sheet.querySelectorAll('.stepper-num')].map((n) => n.textContent);
+    assert.ok(nums.includes('4.0'), `expected speed displayed as 4.0, got ${nums.join(',')}`);
+    sheet.closest('.sheet-backdrop')?.remove();
+  });
+});
+
+describe('session view: cardio setup row', () => {
+  beforeEach(() => seedFullState());
+
+  it('shows the EFFECTIVE speed + incline on the intro screen', async () => {
+    const { setCustomization, setAdHocDay } = await import('../js/state.js');
+    const { render: renderSession } = await import('../js/views/session.js');
+    setCustomization('walk-12-3-30', { speed: 4.0, incline: 12 });
+    setAdHocDay({
+      weekday: 0, dayType: 'cardio-core', name: 'T', icon: '🧪', summary: '',
+      blocks: [{ exerciseId: 'walk-12-3-30', sets: 1, duration: 1800, restSeconds: 0 }],
+      estimatedMinutes: 30,
+    });
+    renderSession(appRoot());
+    const setup = appRoot().querySelector('.machine-setup');
+    assert.ok(setup, 'machine-setup row should render');
+    assert.ok(setup.textContent.includes('4.0 km/h'),
+      `intro should show user's effective speed (4.0), got: ${setup.textContent}`);
+    assert.ok(setup.textContent.includes('dốc 12%'),
+      `intro should show effective incline, got: ${setup.textContent}`);
+  });
+
+  it('does NOT render the setup row for non-cardio exercises', async () => {
+    const { setAdHocDay } = await import('../js/state.js');
+    const { render: renderSession } = await import('../js/views/session.js');
+    setAdHocDay({
+      weekday: 0, dayType: 'cardio-core', name: 'T', icon: '🧪', summary: '',
+      blocks: [{ exerciseId: 'glute-bridge', sets: 3, reps: 15, restSeconds: 30 }],
+      estimatedMinutes: 5,
+    });
+    renderSession(appRoot());
+    assert.equal(appRoot().querySelector('.machine-setup'), null,
+      'glute-bridge has no defaultSpeed/defaultIncline → no setup row');
+  });
 });

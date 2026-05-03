@@ -43,7 +43,8 @@ export const EXERCISES = Object.freeze({
   'walk-warmup': EX({
     id: 'walk-warmup', name: 'Đi bộ khởi động', type: T.WARMUP, mode: 'time',
     defaultDuration: 300, defaultSets: 1, defaultRest: 0,
-    instructions: 'Lên máy chạy bộ. Tốc độ 3.5–4.0 km/h, độ dốc 0%. Đi thư thái cho người ấm lên, lắc nhẹ vai và xoay cổ tay.',
+    defaultSpeed: 3.8, defaultIncline: 0,
+    instructions: 'Lên máy chạy bộ, đi thư thái cho người ấm lên. Pace: bước thoải mái, vẫn thở mũi được. Dốc 0%. Lắc nhẹ vai và xoay cổ tay.',
     cues: ['Hít thở sâu', 'Thả lỏng vai'],
     equipment: [E.TREADMILL], calsPerMin: 4,
     safetyTags: [C.CORE_EASY, C.BACK_EASY, C.KNEE_EASY],
@@ -51,34 +52,41 @@ export const EXERCISES = Object.freeze({
   'walk-zone2': EX({
     id: 'walk-zone2', name: 'Đi bộ nhanh có dốc (Zone 2)', type: T.CARDIO, mode: 'time',
     defaultDuration: 1500, defaultSets: 1, defaultRest: 0,
-    instructions: 'Tốc độ 5.5–6.0 km/h, độ dốc 3–5%. Mục tiêu: nhịp tim ~120–140, vẫn nói chuyện được nhưng không hát nổi. Đây là vùng đốt mỡ tốt nhất.',
-    cues: ['Giữ nhịp đều', 'Hít mũi - thở miệng', 'Đừng bám tay vịn'],
+    defaultSpeed: 5.5, defaultIncline: 4,
+    instructions: 'Mục tiêu: NHỊP TIM ~120–140 (talk test: nói được nhưng hát không nổi). Số km/h trong app chỉ là gợi ý — máy ở nhà calibration khác máy gym, m chỉnh tốc độ + độ dốc cho khớp với cảm giác Zone 2 của m, rồi save lại.',
+    cues: ['Talk test: nói được, hát không nổi', 'Giữ nhịp đều', 'Hít mũi - thở miệng', 'Đừng bám tay vịn'],
     equipment: [E.TREADMILL_INCLINE, E.TREADMILL], calsPerMin: 8,
     safetyTags: [C.CORE_EASY],
   }),
   'walk-12-3-30': EX({
     // Validated fat-loss protocol. 2025 study (PMC 11798546) — burns ≈ same
-    // calories as a self-paced run with 41% energy from fat. See
-    // docs/evidence-base.md §2.
+    // calories as a self-paced run with 41% energy from fat. The "12-3-30"
+    // numbers (12% incline, 3 mph / 4.8 km/h, 30 min) are EFFORT proxies on
+    // a calibrated commercial treadmill. Home machines vary 10–20%; the
+    // user customises speed/incline to their machine's Zone-2 equivalent.
+    // See docs/evidence-base.md §2.
     id: 'walk-12-3-30', name: 'Đi bộ dốc 12-3-30', type: T.CARDIO, mode: 'time',
     defaultDuration: 1800, defaultSets: 1, defaultRest: 0,
-    instructions: 'Cài máy: dốc 12%, tốc độ 4.8 km/h (3 mph), 30 phút. Đừng bám tay vịn — chống nhẹ chỉ khi mất thăng bằng. Bước đều, hít thở tự nhiên. Đây là protocol đốt mỡ low-impact đã được chứng minh khoa học.',
-    cues: ['Dốc 12%, tốc độ 4.8 km/h', 'Đừng bám tay vịn', 'Thở đều theo nhịp', 'Bước dài, gót chạm trước'],
+    defaultSpeed: 4.8, defaultIncline: 12,
+    instructions: 'Protocol gốc: dốc 12%, 4.8 km/h, 30 phút. Nhưng máy ở nhà calibration thường chênh 10–20% so với máy gym — m đo bằng EFFORT, không phải con số. Mục tiêu: Zone 2 (nhịp tim ~120–140, talk test pass). Nếu 4.0 km/h cho m cảm giác đó thì 4.0 chính là pace của m — chỉnh trong customize sheet, lần sau app hiện đúng số đó.',
+    cues: ['Effort > số km/h', 'Talk test: nói được, hát không nổi', 'Đừng bám tay vịn', 'Bước dài, gót chạm trước'],
     equipment: [E.TREADMILL_INCLINE], calsPerMin: 9,
     safetyTags: [C.CORE_EASY],
   }),
   'walk-zone2-long': EX({
     id: 'walk-zone2-long', name: 'Đi bộ dốc dài (đốt mỡ)', type: T.CARDIO, mode: 'time',
     defaultDuration: 2100, defaultSets: 1, defaultRest: 0,
-    instructions: 'Tốc độ 5.0–5.5 km/h, độ dốc 5–8%. Buổi cardio dài, cường độ vừa, đốt mỡ là chính. Uống nước giữa chừng nếu cần.',
-    cues: ['Bước dài, gót chạm trước', 'Thẳng lưng'],
+    defaultSpeed: 5.2, defaultIncline: 6,
+    instructions: 'Buổi cardio dài, cường độ vừa, đốt mỡ là chính. Mục tiêu Zone 2 (nhịp tim ~120–140). Số km/h và % dốc trong app là gợi ý — chỉnh cho hợp máy + sức của m, rồi save. Uống nước giữa chừng nếu cần.',
+    cues: ['Talk test pass', 'Bước dài, gót chạm trước', 'Thẳng lưng'],
     equipment: [E.TREADMILL_INCLINE], calsPerMin: 9,
     safetyTags: [C.CORE_EASY],
   }),
   'walk-cooldown': EX({
     id: 'walk-cooldown', name: 'Đi bộ thả lỏng', type: T.COOLDOWN, mode: 'time',
     defaultDuration: 300, defaultSets: 1, defaultRest: 0,
-    instructions: 'Tốc độ 3.0–3.5 km/h, dốc 0%. Hít thở sâu để hạ nhịp tim. Lắc tay, xoay vai.',
+    defaultSpeed: 3.2, defaultIncline: 0,
+    instructions: 'Bước nhẹ, dốc 0%. Hít thở sâu để hạ nhịp tim. Lắc tay, xoay vai.',
     cues: ['Hít sâu', 'Thả lỏng'],
     equipment: [E.TREADMILL], calsPerMin: 3,
     safetyTags: [C.CORE_EASY, C.BACK_EASY, C.KNEE_EASY],

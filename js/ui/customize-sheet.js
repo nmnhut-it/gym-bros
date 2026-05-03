@@ -42,18 +42,14 @@ export function openCustomizeSheet(exerciseId, opts = {}) {
  * exercise default. Used by callers that want to display the current target
  * without launching the full sheet.
  * @param {string} exerciseId
- * @param {'sets'|'reps'|'duration'|'restSeconds'} field
+ * @param {'sets'|'reps'|'duration'|'restSeconds'|'speed'|'incline'} field
  */
 export function effectiveValue(exerciseId, field) {
   const ex = findExercise(exerciseId);
   if (!ex) return undefined;
   const cust = getCustomization(exerciseId);
   if (cust[field] !== undefined) return cust[field];
-  if (field === 'sets')        return ex.defaultSets;
-  if (field === 'reps')        return ex.defaultReps;
-  if (field === 'duration')    return ex.defaultDuration;
-  if (field === 'restSeconds') return ex.defaultRest;
-  return undefined;
+  return exerciseDefaultFor(ex, field);
 }
 
 // ---------- internal ----------
@@ -61,6 +57,8 @@ export function effectiveValue(exerciseId, field) {
 function innerSheet(ex, close, onSave) {
   const isTime = ex.mode === 'time';
   const cust = getCustomization(ex.id);
+  const hasSpeed = ex.defaultSpeed !== undefined;
+  const hasIncline = ex.defaultIncline !== undefined;
   return el('div.sheet.customize-sheet', {}, [
     el('div.sheet-header', {}, [
       el('h2', {}, ['Tùy chỉnh: ', ex.name]),
@@ -77,6 +75,8 @@ function innerSheet(ex, close, onSave) {
           ex.mode === 'reps-per-side' ? 'rep/bên' : 'rep',
           onSave),
     stepperRow(ex, cust, 'restSeconds', 'Nghỉ giữa set', 's', onSave, fmtDuration),
+    hasIncline ? stepperRow(ex, cust, 'incline', 'Độ dốc', '%', onSave, fmtPercent) : null,
+    hasSpeed   ? stepperRow(ex, cust, 'speed',   'Tốc độ',  'km/h', onSave, fmtSpeed) : null,
     el('div.customize-actions', {}, [
       Object.keys(cust).length === 0
         ? null
@@ -86,6 +86,9 @@ function innerSheet(ex, close, onSave) {
     ]),
   ]);
 }
+
+function fmtSpeed(n)   { return Number(n).toFixed(1); }
+function fmtPercent(n) { return Number(n).toFixed(Number.isInteger(n) ? 0 : 1); }
 
 /**
  * One stepper row: label + (-, value, +) controls. Bounds come from
@@ -97,8 +100,15 @@ function stepperRow(ex, cust, field, label, unit, onSave, formatter = String) {
   const cur = cust[field] ?? exDefault;
   const overridden = cust[field] !== undefined && cust[field] !== exDefault;
   function clamp(n) { return Math.max(bounds.min, Math.min(bounds.max, n)); }
+  function snap(n) {
+    // Snap to the nearest step + clean up floating-point noise so e.g.
+    // 4.8 + 0.1 saves as 4.9 (not 4.8999999…) and stepping back to default
+    // matches `=== exDefault` cleanly.
+    const snapped = Math.round(n / bounds.step) * bounds.step;
+    return Math.round(snapped * 1e6) / 1e6;
+  }
   function step(delta) {
-    const next = clamp(cur + delta);
+    const next = clamp(snap(cur + delta));
     if (next === exDefault) setCustomization(ex.id, { [field]: null });
     else setCustomization(ex.id, { [field]: next });
     onSave();
@@ -132,5 +142,7 @@ function exerciseDefaultFor(ex, field) {
   if (field === 'reps')        return ex.defaultReps;
   if (field === 'duration')    return ex.defaultDuration;
   if (field === 'restSeconds') return ex.defaultRest;
+  if (field === 'speed')       return ex.defaultSpeed;
+  if (field === 'incline')     return ex.defaultIncline;
   return undefined;
 }

@@ -22,10 +22,16 @@ export const STORAGE_KEYS = Object.freeze({
  * generous — the user is final authority. See docs/evidence-base.md §5.
  */
 export const CUSTOMIZE_BOUNDS = Object.freeze({
-  sets:        { min: 1,  max: 10,   step: 1  },
-  reps:        { min: 1,  max: 50,   step: 1  },
-  duration:    { min: 5,  max: 3600, step: 5  },  // seconds
-  restSeconds: { min: 0,  max: 300,  step: 5  },
+  sets:        { min: 1,    max: 10,   step: 1   },
+  reps:        { min: 1,    max: 50,   step: 1   },
+  duration:    { min: 5,    max: 3600, step: 5   },  // seconds
+  restSeconds: { min: 0,    max: 300,  step: 5   },
+  // Cardio: only displayed in the customize sheet when the exercise declares
+  // a defaultSpeed / defaultIncline. Home treadmills routinely vary 10–20%
+  // from displayed speed, so users save THEIR machine's effective Zone-2
+  // pace once and the session view shows it back. See docs/evidence-base.md §2.
+  speed:       { min: 1.0,  max: 15.0, step: 0.1 },  // km/h
+  incline:     { min: 0,    max: 15,   step: 0.5 },  // %
 });
 
 /** Max number of distinct exerciseIds returned by getRecentExerciseIds. */

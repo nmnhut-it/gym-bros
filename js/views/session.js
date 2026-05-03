@@ -12,6 +12,7 @@
 
 import { DEFAULT_REST_SECONDS, ROUTES, TICK_MS } from '../constants.js';
 import { isFavorite, state, recordSession, setAdHocDay, toggleFavorite } from '../state.js';
+import { effectiveValue, openCustomizeSheet } from '../ui/customize-sheet.js';
 import { getTodayDay } from '../plan/generator.js';
 import { navigate } from '../router.js';
 import { fmtTime } from '../ui/format.js';
@@ -110,9 +111,48 @@ function activeView(block, ex) {
     ]),
     el('div.exercise-meta', {}, [setLabel]),
     bigDisplay(block, ex),
+    isIntro ? machineSetupRow(ex) : null,
     el('p.exercise-instructions', {}, [ex.instructions]),
     el('div.cue-row', {}, ex.cues.map((c) => el('span.cue-pill', {}, [c]))),
-    isIntro ? el('button.btn.ghost.tutorial-btn', { type: 'button', onClick: () => openTutorial(ex) }, ['📖 Hướng dẫn chi tiết']) : null,
+    isIntro ? introActions(ex) : null,
+  ]);
+}
+
+/**
+ * For cardio exercises that declare speed / incline defaults, show the
+ * EFFECTIVE values (user customisation if set, else default) prominently on
+ * the intro screen — e.g. "Setup máy: dốc 12% · 4.8 km/h". The user sees
+ * what to dial up before pressing Bắt đầu.
+ */
+function machineSetupRow(ex) {
+  if (ex.defaultSpeed === undefined && ex.defaultIncline === undefined) return null;
+  const incline = effectiveValue(ex.id, 'incline');
+  const speed   = effectiveValue(ex.id, 'speed');
+  const parts = [];
+  // Always 1-decimal for speed (4.0 km/h, not "4") so the user sees the
+  // precision the stepper offers; integer for incline (12%, not 12.0%).
+  if (incline !== undefined) parts.push(`dốc ${formatIncline(incline)}%`);
+  if (speed   !== undefined) parts.push(`${Number(speed).toFixed(1)} km/h`);
+  return el('div.machine-setup', {
+    role: 'button', tabindex: 0,
+    title: 'Tùy chỉnh tốc độ + độ dốc',
+    onClick: () => openCustomizeSheet(ex.id, { onChange: draw }),
+  }, [
+    el('span.machine-setup-label', {}, ['🎚 Setup máy']),
+    el('span.machine-setup-value', {}, [parts.join(' · ')]),
+    el('span.machine-setup-edit', {}, ['⚙']),
+  ]);
+}
+
+function formatIncline(n) {
+  return Number.isInteger(n) ? String(n) : Number(n).toFixed(1);
+}
+
+function introActions(ex) {
+  return el('div.intro-actions', {}, [
+    el('button.btn.ghost.tutorial-btn', {
+      type: 'button', onClick: () => openTutorial(ex),
+    }, ['📖 Hướng dẫn chi tiết']),
   ]);
 }
 

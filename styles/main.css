@@ -925,6 +925,39 @@
     font-size: var(--fs-sm);
   }
 
+  .machine-setup {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--sp-3);
+    width: 100%;
+    max-width: 480px;
+    padding: var(--sp-3) var(--sp-4);
+    background: var(--brand-soft);
+    border: 1px solid var(--brand);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    color: var(--fg-0);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .machine-setup:hover { filter: brightness(1.08); }
+  .machine-setup:active { transform: scale(0.98); }
+  .machine-setup-label {
+    font-size: var(--fs-sm);
+    color: var(--fg-2);
+    font-weight: 500;
+  }
+  .machine-setup-value {
+    font-size: var(--fs-md);
+    font-weight: 700;
+    color: var(--brand);
+    text-align: right;
+  }
+  .machine-setup-edit {
+    color: var(--fg-3);
+    font-size: 16px;
+  }
+
   .session-footer {
     padding: var(--sp-4);
     padding-bottom: calc(var(--sp-4) + var(--safe-bottom));
